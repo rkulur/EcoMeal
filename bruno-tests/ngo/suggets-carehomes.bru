@@ -1,0 +1,12 @@
+meta{
+  name: Suggest Care Homes
+  type: http
+  seq: 28
+}
+
+get {
+  url: {{baseUrl}}/ngo/suggest-carehomes/662e123456abcdef98765432
+  headers: {
+    Authorization: "Bearer {{ngoToken}}"
+  }
+}

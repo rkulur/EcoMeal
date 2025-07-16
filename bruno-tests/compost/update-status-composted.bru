@@ -1,0 +1,21 @@
+meta {
+  name: Mark Donation as Composted
+  type: http
+  seq: 16
+}
+
+patch {
+  url: {{baseUrl}}/update-status/662e123456abcdef98765432
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{composterToken}}
+}
+
+body {
+  {
+    "status": "composted",
+    "weightKg": 12.5
+  }
+}

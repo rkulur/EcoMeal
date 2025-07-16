@@ -1,0 +1,13 @@
+meta {
+  name: Get Composter Impact
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/impact
+}
+
+headers {
+  Authorization: Bearer {{composterToken}}
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Update Donation
+  type: http
+  seq: 22
+}
+
+patch {
+  url: {{baseUrl}}/donor/donation/update/685a4f3e06dea60207d6ffaf
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{donorToken}}
+}
+
+body:json {
+  {
+    "foodItems": [
+      {
+        "name": "Chapati",
+        "quantity": 15,
+        "unit": "kg"
+      }
+    ]
+  }
+}

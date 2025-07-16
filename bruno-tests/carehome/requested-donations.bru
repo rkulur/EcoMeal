@@ -1,0 +1,13 @@
+meta {
+  name: Get Requested Donations
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/carehome/requested-donations
+}
+
+headers {
+  Authorization: Bearer {{carehomeToken}}
+}

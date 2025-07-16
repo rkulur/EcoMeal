@@ -1,0 +1,22 @@
+meta {
+  name: Reject Donation
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/carehome/reject-donation/662f3a7a04c3a138f0c9852d
+  body: json
+}
+
+body{
+  {
+    "reasonCode": "already_sourced",
+    "note": "Note for the reason"
+  }
+}
+
+headers {
+  Authorization: Bearer {{carehomeToken}}
+  Content-Type: application/json
+}

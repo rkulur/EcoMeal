@@ -1,0 +1,13 @@
+meta {
+  name: Get Donor Impact
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/donor/impact
+}
+
+headers {
+  Authorization: Bearer {{donorToken}}
+}

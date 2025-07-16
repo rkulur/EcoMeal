@@ -1,0 +1,22 @@
+meta {
+  name: Mark Donation Received
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/carehome/donation-received/662f3a7a04c3a138f0c9852d
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{carehomeToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    
+  }
+}

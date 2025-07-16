@@ -1,0 +1,41 @@
+meta {
+  name: Register Composter
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/v1/auth/register/composter
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "name": "Green Composters Pvt Ltd",
+    "organizationName": "Eco Compost Ltd",
+    "email": "composter@example.com",
+    "phone": "9876543213",
+    "password": "securepass",
+    "confirmPassword": "securepass",
+    "verificationDocument": "https://example.com/docs/eco-compost-license.pdf",
+    "location": {
+      "state": "Karnataka",
+      "district": "Compost District",
+      "city": "Compost Town",
+      "pincode": "560001"
+    },
+    "coordinates": {
+      "lat": 12.9716,
+      "lng": 77.5946
+    },
+    "acceptedFoodTypes": ["vegetables", "grains"],
+    "capacityKgPerDay": 50
+  }
+}
+
+script:post-response {
+  bru.setVar(composterToken,res.body.token)
+}

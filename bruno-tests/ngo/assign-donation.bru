@@ -1,0 +1,21 @@
+meta {
+  name: Assign Donation to Care Home
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/ngo/assign-donation/662e123456abcdef98765432
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{donorToken}}
+}
+
+body {
+  {
+    "careHomeId": "665e123456abcdef98765499",
+    "requestId": "667e987654abcdef12345670"
+  }
+}

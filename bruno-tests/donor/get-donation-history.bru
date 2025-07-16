@@ -1,0 +1,13 @@
+meta {
+  name: Get Donation History
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/donor/donation/history
+}
+
+headers {
+  Authorization: Bearer {{donorToken}}
+}

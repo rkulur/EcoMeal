@@ -1,0 +1,13 @@
+meta {
+  name: Get Compost History
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/history
+}
+
+headers {
+  Authorization: Bearer {{composterToken}}
+}

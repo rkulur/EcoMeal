@@ -1,0 +1,43 @@
+meta {
+  name: Register Donor
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/v1/auth/register/donor
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body {
+  {
+    "category": "restaurant",
+    "name": "Green Leaf Restaurant",
+    "email": "donor@example.com",
+    "phone": "9876543211",
+    "password": "securepass",
+    "confirmPassword": "securepass",
+    "location": {
+      "state": "Karnataka",
+      "district": "Dakshina Kannada",
+      "city": "Mangalore",
+      "pincode": "575001"
+    },
+    "profilePicture": "url-to-profile.jpg",
+    "verificationDocument": "url-to-doc.pdf",
+    "socialMedia": {
+      "website": "https://example.org",
+      "facebook": "ecoMealFB",
+      "instagram": "ecoMealInsta",
+      "twitter": "ecoMealTwitter"
+    }
+  }
+}
+
+
+script:post-response {
+  bru.setVar(donorToken,res.body.token)
+}

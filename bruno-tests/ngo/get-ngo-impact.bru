@@ -1,0 +1,13 @@
+meta {
+  name: Get NGO Impact
+  type: http
+  seq: 27
+}
+
+get {
+  url: {{baseUrl}}/ngo/impact
+}
+
+headers {
+  Authorization: Bearer {{ngoToken}}
+}

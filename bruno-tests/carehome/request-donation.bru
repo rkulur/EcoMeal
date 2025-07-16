@@ -1,0 +1,32 @@
+meta {
+  name: Request Donation
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:3000/api/v1/carehome/request-donation
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{carehomeToken}}
+}
+
+body {
+  {
+    "requestedItems": [
+      {
+        "name": "Cooked Rice",
+        "quantity": 20,
+        "unit": "kg"
+      },
+      {
+        "name": "Dal",
+        "quantity": 10,
+        "unit": "kg"
+      }
+    ],
+    "comments": "Need urgently for dinner"
+  }
+}

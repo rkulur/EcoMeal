@@ -1,0 +1,15 @@
+meta {
+  name: Approve Donation
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/carehome/approve-donation/662f3a7a04c3a138f0c9852d
+  body: json
+}
+
+headers {
+  Authorization: Bearer {{carehomeToken}}
+  Content-Type: application/json
+}

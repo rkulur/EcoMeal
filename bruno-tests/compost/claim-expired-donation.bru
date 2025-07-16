@@ -1,0 +1,13 @@
+meta {
+  name: Claim Expired Donation
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/claim-expired/662e123456abcdef98765432
+}
+
+headers {
+  Authorization: Bearer {{composterToken}}
+}

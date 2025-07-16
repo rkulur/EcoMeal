@@ -1,0 +1,13 @@
+meta {
+  name: Get Available Donations
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrl}}/ngo/available-donations
+}
+
+headers {
+  Authorization: Bearer {{ngoToken}}
+}

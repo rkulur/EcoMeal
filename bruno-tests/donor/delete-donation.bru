@@ -1,0 +1,22 @@
+meta {
+  name: Delete Donation
+  type: http
+  seq: 18
+}
+
+patch {
+  url: {{baseUrl}}/donor/donation/delete/685a4f7e06dea60207d6ffb4
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{donorToken}}
+}
+
+body:json {
+  {
+    "isDeleted": true
+  }
+}

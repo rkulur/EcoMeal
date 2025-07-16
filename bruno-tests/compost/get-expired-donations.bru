@@ -1,0 +1,13 @@
+meta {
+  name: Get Expired Donations
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/expired-donations
+}
+
+headers {
+  Authorization: Bearer {{composterToken}}
+}
