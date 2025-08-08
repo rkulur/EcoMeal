@@ -1,4 +1,4 @@
-import { step1Schema } from "@/src/validation/ngo/ngoRegistration.schema";
+import { step1Schema } from "@/src/validation/register/ngo/ngoRegistration.schema";
 import { createContext, useContext, useState } from "react";
 import { z } from "zod";
 

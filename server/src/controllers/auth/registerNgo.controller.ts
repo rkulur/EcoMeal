@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { FastifyReply, FastifyRequest } from "fastify";
 import NGO from "../../models/NGO.model";
 import { generateToken } from "../../utils/generateToken";
+import { successResponse } from "../../utils/responseWrapper";
 
 interface NGORegistrationBody {
   name: string;
@@ -81,13 +82,16 @@ const registerNGO = async (
 
     const token = generateToken(request.server.jwt, ngo);
 
-    return reply.code(201).send({
+    const payload = {
       _id: ngo._id,
       name: ngo.name,
       email: ngo.email,
       role: ngo.role,
       token,
-    });
+    };
+    return reply
+      .code(201)
+      .send(successResponse(payload, "NGO registered successfully"));
   } catch (error) {
     return reply.code(500).send({
       error: error instanceof Error ? error.message : "Internal server error",

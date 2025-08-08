@@ -1,4 +1,4 @@
-import { step2Schema } from "@/src/validation/donor/donorRegistration.schema";
+import { step2Schema } from "@/src/validation/register/donor/donorRegistration.schema";
 import { createContext, useContext, useState } from "react";
 import { z } from "zod";
 

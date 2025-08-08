@@ -1,14 +1,12 @@
-import CustomPicker from "@/src/components/CategoryPicker";
-import InputBox from "@/src/components/InputBox";
-import PoppinsText from "@/src/components/PoppinsText";
-import Button from "@/src/core/auth/components/Button";
-import StepSkeleton from "@/src/core/auth/components/StepSkeleton";
+import { CustomSelect, InputBox, PoppinsText } from "@/src/components";
+import StepButtons from "@/src/core/auth/components/RegisterButton";
+import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep1DonorData } from "@/src/core/auth/hooks/donor/step1Context";
-import { step1Schema } from "@/src/validation/donor/donorRegistration.schema";
+import { step1Schema } from "@/src/validation/register/donor/donorRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Redirect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { z } from "zod";
 
 const categoryOptions = [
@@ -49,7 +47,11 @@ export default function DonorRegistrationStep1() {
   };
   return (
     <>
-      <StepSkeleton totalSteps={3} currStep={1} heading="Tell us about you!">
+      <RegistrationStepSkeleton
+        totalSteps={3}
+        currStep={1}
+        heading="Tell us about you!"
+      >
         <Controller
           control={control}
           name="name"
@@ -106,7 +108,7 @@ export default function DonorRegistrationStep1() {
           control={control}
           name="category"
           render={({ field: { value, onChange } }) => (
-            <CustomPicker
+            <CustomSelect
               label="Category"
               onValueChange={onChange}
               categoryOptions={categoryOptions}
@@ -118,12 +120,12 @@ export default function DonorRegistrationStep1() {
           <PoppinsText>{errors.category.message}</PoppinsText>
         )}
 
-        <Button
+        <StepButtons
           totalSteps={3}
           currStep={1}
           onPress={handleSubmit(onSubmit, (err) => console.log(err))}
         />
-      </StepSkeleton>
+      </RegistrationStepSkeleton>
     </>
   );
 }

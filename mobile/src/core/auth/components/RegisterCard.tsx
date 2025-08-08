@@ -1,13 +1,15 @@
+import GradientButton from "@/src/components/GradientButton";
 import GradientText from "@/src/components/GradientText";
 import PoppinsText from "@/src/components/PoppinsText";
 import {
   BORDER_RADIUS,
-  COLORS,
-  FONT_SIZE,
+  FONT,
+  GRADIENT_PRIMARY,
   GRADIENT_SECONDARY,
+  HEIGHT,
 } from "@/src/themes";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, RelativePathString } from "expo-router";
+import { Link, RelativePathString, useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 type RegisterCardProps = {
@@ -23,6 +25,7 @@ const RegisterCard = ({
   points,
   href,
 }: RegisterCardProps) => {
+  const router = useRouter();
   return (
     <LinearGradient colors={GRADIENT_SECONDARY} style={s.container}>
       <Text style={s.heading}>{heading}</Text>
@@ -35,9 +38,12 @@ const RegisterCard = ({
             </PoppinsText>
           ))}
       </View>
-      <Link href={href} style={s.registerBtn}>
-        <GradientText text={`Register as ${heading}`} />
-      </Link>
+      <GradientButton
+        gradient={GRADIENT_PRIMARY}
+        text={`Register as a ${heading}`}
+        onPress={() => router.navigate(href)}
+        style={s.registerBtn}
+      />
     </LinearGradient>
   );
 };
@@ -46,22 +52,18 @@ export default RegisterCard;
 
 const s = StyleSheet.create({
   container: {
-    height: 205,
     borderRadius: BORDER_RADIUS,
-    padding: 16,
     gap: 4,
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
     justifyContent: "center",
+    padding: 20,
+    paddingBottom: 25,
   },
   heading: {
-    fontFamily: "Poppins_600SemiBold",
+    fontFamily: FONT.SEMI_BOLD,
     fontSize: 22,
   },
   registerBtn: {
-    borderRadius: BORDER_RADIUS,
-    backgroundColor: "white",
-    padding: 8,
-    textAlign: "center",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    height: HEIGHT.button,
   },
 });

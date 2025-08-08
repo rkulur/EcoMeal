@@ -1,10 +1,8 @@
-import CustomPicker from "@/src/components/CategoryPicker";
-import InputBox from "@/src/components/InputBox";
-import PoppinsText from "@/src/components/PoppinsText";
-import Button from "@/src/core/auth/components/Button";
-import StepSkeleton from "@/src/core/auth/components/StepSkeleton";
+import { InputBox, PoppinsText } from "@/src/components";
+import StepButtons from "@/src/core/auth/components/RegisterButton";
+import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep1NgoData } from "@/src/core/auth/hooks/ngo/step1Context";
-import { step1Schema } from "@/src/validation/ngo/ngoRegistration.schema";
+import { step1Schema } from "@/src/validation/register/ngo/ngoRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
@@ -40,7 +38,7 @@ export default function NgoRegistrationStep1() {
   };
   return (
     <>
-      <StepSkeleton
+      <RegistrationStepSkeleton
         totalSteps={4}
         currStep={1}
         heading="Tell us about your mission!"
@@ -97,12 +95,12 @@ export default function NgoRegistrationStep1() {
           )}
         />
         {errors.phone && <PoppinsText>{errors.phone.message}</PoppinsText>}
-        <Button
+        <StepButtons
           totalSteps={3}
           currStep={1}
           onPress={handleSubmit(onSubmit, (err) => console.log(err))}
         />
-      </StepSkeleton>
+      </RegistrationStepSkeleton>
     </>
   );
 }

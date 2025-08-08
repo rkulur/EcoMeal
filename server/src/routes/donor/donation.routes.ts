@@ -2,9 +2,11 @@ import { FastifyInstance, RouteHandler } from "fastify/fastify";
 import {
   createDonation,
   deleteDonation,
-  getDonationHistory,
+  getFullDonationHistory,
   getDonationStatusById,
   updateDonation,
+  getDonationById,
+  getPartialDonationHistory,
 } from "../../controllers/donor";
 
 export const createDonationSchema = {
@@ -20,7 +22,21 @@ export const createDonationSchema = {
           properties: {
             name: { type: "string" },
             quantity: { type: "number" },
-            unit: { type: "string", default: "kg" },
+            unit: {
+              type: "string",
+              enum: [
+                "plates",
+                "servings",
+                "packets",
+                "containers",
+                "trays",
+                "bowls",
+                "boxes",
+                "liters",
+                "ml",
+              ],
+              default: "plates",
+            },
             expiryDate: { type: "string", format: "date-time" },
           },
         },
@@ -74,7 +90,7 @@ export default async function donationRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/history",
     { preHandler: [fastify.authenticate, fastify.isDonor] },
-    getDonationHistory,
+    getPartialDonationHistory,
   );
 
   fastify.get(
@@ -82,7 +98,7 @@ export default async function donationRoutes(fastify: FastifyInstance) {
     {
       preHandler: [fastify.authenticate, fastify.isDonor],
     },
-    getDonationStatusById as RouteHandler,
+    getDonationById as RouteHandler,
   );
 
   fastify.patch(

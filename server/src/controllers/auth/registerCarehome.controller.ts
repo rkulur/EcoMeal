@@ -17,7 +17,7 @@ interface CareHomeRegistrationBody {
   };
   pointOfContact: string;
   preferredPickupTime: string;
-  numberOfResidents: number;
+  noOfResidents: number;
   foodTypeRequired: string[];
   dietaryRestrictions?: string[];
   preferredDeliveryTime: string;
@@ -49,7 +49,7 @@ export const registerCareHome = async (
       location,
       pointOfContact,
       preferredPickupTime,
-      numberOfResidents,
+      noOfResidents,
       foodTypeRequired,
       dietaryRestrictions,
       preferredDeliveryTime,
@@ -58,21 +58,17 @@ export const registerCareHome = async (
       socialMedia,
     } = request.body;
 
-    // Validate passwords
     if (password !== confirmPassword) {
       return reply.code(400).send({ error: "Passwords do not match" });
     }
 
-    // Check for existing email
     const existingUser = await CareHome.findOne({ email });
     if (existingUser) {
       return reply.code(400).send({ error: "Email already registered" });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the Care Home user
     const careHome = await CareHome.create({
       name,
       email,
@@ -81,7 +77,7 @@ export const registerCareHome = async (
       location,
       pointOfContact,
       preferredPickupTime,
-      numberOfResidents,
+      noOfResidents: noOfResidents,
       foodTypeRequired,
       dietaryRestrictions,
       preferredDeliveryTime,
@@ -91,7 +87,6 @@ export const registerCareHome = async (
       role: "carehome",
     });
 
-    // JWT token generation
     const token = generateToken(request.server.jwt, careHome);
 
     return reply.code(201).send({

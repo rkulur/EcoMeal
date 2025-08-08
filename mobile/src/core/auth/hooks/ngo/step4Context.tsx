@@ -1,4 +1,4 @@
-import { step4Schema } from "@/src/validation/ngo/ngoRegistration.schema";
+import { step4Schema } from "@/src/validation/register/ngo/ngoRegistration.schema";
 import { createContext, useContext, useState } from "react";
 import { z } from "zod";
 
@@ -29,7 +29,7 @@ export const NgoStep4Provider = ({
   );
 };
 
-export const usestep4NgoData = () => {
+export const useStep4NgoData = () => {
   const ctx = useContext(NgoStep4Context);
   if (!ctx)
     throw new Error("useStep4NgoData must be used within a NgoStep4Provider");

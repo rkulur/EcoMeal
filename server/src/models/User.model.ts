@@ -13,7 +13,7 @@ export interface IUser extends Document {
     pincode: string;
   };
   profilePicture?: string;
-  verificationDocument: string;
+  verificationDocument?: string;
   socialMedia?: {
     website?: string;
     facebook?: string;
@@ -68,7 +68,7 @@ const userSchema = new Schema<IUser>(
     profilePicture: String,
     verificationDocument: {
       type: String,
-      required: true,
+      required: false,
     },
     socialMedia: {
       website: String,

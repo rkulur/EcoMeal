@@ -1,19 +1,42 @@
-import InputBox from "@/src/components/InputBox";
-import PrimaryButton from "@/src/components/PrimaryGradient";
-import { Link, RelativePathString } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import ecomealLogo from "../../assets/images/ecomeal_logo_v2.png";
-import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/src/themes";
-import PoppinsText from "@/src/components/PoppinsText";
-import Line from "@/src/components/Line";
-import { FontAwesome5 } from "@expo/vector-icons";
 import GradientText from "@/src/components/GradientText";
-import { SafeAreaView } from "react-native-safe-area-context";
+import InputBox from "@/src/components/InputBox";
+import Line from "@/src/components/Line";
 import PoppinsHeadText from "@/src/components/PoppinsHeadText";
+import PoppinsText from "@/src/components/PoppinsText";
+import PrimaryButton from "@/src/components/PrimaryGradient";
+import { useAuth } from "@/src/core/auth/AuthProvider";
+import login from "@/src/core/auth/api/login";
+import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
+import { loginSchema, loginType } from "@/src/validation/login.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, RelativePathString } from "expo-router";
+import { Controller, useForm } from "react-hook-form";
+import { Image, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ecomealLogo from "../../assets/images/ecomeal_logo_v2.png";
 
 const Login = () => {
+  const { control, handleSubmit, formState } = useForm<loginType>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "carehome@gmail.com",
+      password: "securepassword",
+    },
+  });
+  const { signIn } = useAuth();
+  const onSumbit = async (submitData: loginType) => {
+    const res = await login(submitData);
+    if (!res.ok) {
+      alert(res.error.message);
+      console.log(JSON.stringify(res.error));
+      return;
+    }
+    const { token, role } = res.data;
+    signIn(token, role);
+  };
+
   return (
-    <SafeAreaView style={styles.view}>
+    <SafeAreaView style={[styles.view, { backgroundColor: "white" }]}>
       <View style={{ alignItems: "center" }}>
         <Image source={ecomealLogo} style={styles.logo} />
       </View>
@@ -26,15 +49,29 @@ const Login = () => {
           difference together
         </PoppinsText>
       </View>
-      <InputBox
-        label="Email"
-        keyboardType="email-address"
-        onChangeText={(text) => console.log(text)}
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { value, onChange } }) => (
+          <InputBox
+            label="Email"
+            keyboardType="email-address"
+            value={value}
+            onChangeText={onChange}
+          />
+        )}
       />
-      <InputBox
-        label="Password"
-        onChangeText={(text) => console.log(text)}
-        keyboardType="visible-password"
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { value, onChange } }) => (
+          <InputBox
+            label="Password"
+            onChangeText={onChange}
+            keyboardType="visible-password"
+            value={value}
+          />
+        )}
       />
       <PrimaryButton
         text="Login"
@@ -43,22 +80,14 @@ const Login = () => {
           alignItems: "center",
           borderRadius: BORDER_RADIUS,
         }}
+        onPress={handleSubmit(onSumbit, (err) => console.log(err))}
       />
       <View style={styles.division}>
         <Line />
         <PoppinsText>or</PoppinsText>
         <Line />
       </View>
-      <Pressable
-        style={({ pressed }) => [
-          styles.googleLogin,
-          { opacity: pressed ? 0.8 : 1 },
-        ]}
-      >
-        <FontAwesome5 name="google" size={16} />
-        <PoppinsText>Login with Google</PoppinsText>
-      </Pressable>
-
+      {/* <SignInScreen /> */}
       <View
         style={{
           display: "flex",
@@ -70,9 +99,13 @@ const Login = () => {
         <PoppinsText>Don't have an account?</PoppinsText>
         <Link
           href={"/register" as RelativePathString}
-          style={{ fontFamily: "Poppins_700Bold" }}
+          style={{ fontFamily: FONT.BOLD }}
         >
-          <GradientText text="Register" />
+          <GradientText
+            text="Register"
+            style={{ textDecorationLine: "underline" }}
+          />
+          ,
         </Link>
       </View>
     </SafeAreaView>
@@ -84,7 +117,7 @@ const styles = StyleSheet.create({
     paddingLeft: SPACING.page,
     paddingRight: SPACING.page,
     paddingTop: SPACING.page / 1.5,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: FONT.REGULAR,
     gap: 20,
   },
   logo: {
@@ -92,11 +125,11 @@ const styles = StyleSheet.create({
     width: 48,
   },
   heading: {
-    fontSize: FONT_SIZE.heading,
+    fontSize: FONT_SIZE.xxlarge,
     textAlign: "center",
   },
   subheading: {
-    fontSize: FONT_SIZE.subheading,
+    fontSize: FONT_SIZE.medium,
     textAlign: "center",
   },
   division: {

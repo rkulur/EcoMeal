@@ -6,23 +6,18 @@ const composterSchema = {
     type: "object",
     required: [
       "name",
-      "organizationName",
       "email",
       "phone",
       "password",
       "confirmPassword",
-      "verificationDocument",
       "location",
-      "coordinates",
     ],
     properties: {
       name: { type: "string" },
-      organizationName: { type: "string" },
       email: { type: "string", format: "email" },
       phone: { type: "string" },
       password: { type: "string", minLength: 6 },
       confirmPassword: { type: "string", minLength: 6 },
-      verificationDocument: { type: "string" },
       location: {
         type: "object",
         required: ["state", "district", "city", "pincode"],
@@ -31,14 +26,6 @@ const composterSchema = {
           district: { type: "string" },
           city: { type: "string" },
           pincode: { type: "string" },
-        },
-      },
-      coordinates: {
-        type: "object",
-        required: ["lat", "lng"],
-        properties: {
-          lat: { type: "number" },
-          lng: { type: "number" },
         },
       },
       acceptedFoodTypes: {

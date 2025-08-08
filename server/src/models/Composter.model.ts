@@ -1,16 +1,15 @@
-import User from "./User.model";
+import User, { IUser } from "./User.model";
 import { InferSchemaType, Schema } from "mongoose";
 
+export interface IComposter extends IUser {
+  capacityKgPerDay: number;
+  acceptedFoodTypes: string[];
+}
+
 const composterSchema = new Schema({
-  organizationName: { type: String, required: true },
-  coordinates: {
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true },
-  },
   capacityKgPerDay: { type: Number },
-  currentLoadKg: { type: Number, default: 0 },
-  acceptedFoodTypes: [{ type: String }], // e.g. ['vegetables', 'grains']
+  acceptedFoodTypes: [{ type: String }],
 });
 
 export type ComposterType = InferSchemaType<typeof composterSchema>;
-export default User.discriminator<ComposterType>("composter", composterSchema);
+export default User.discriminator<IComposter>("composter", composterSchema);

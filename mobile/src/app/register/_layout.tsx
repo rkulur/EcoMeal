@@ -10,6 +10,8 @@ const RegisterLayout = () => {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="donor" options={{ headerShown: false }} />
       <Stack.Screen name="ngo" options={{ headerShown: false }} />
+      <Stack.Screen name="carehome" options={{ headerShown: false }} />
+      <Stack.Screen name="composter" options={{ headerShown: false }} />
     </Stack>
   );
 };

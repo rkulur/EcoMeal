@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Register = () => {
   return (
-    <SafeAreaView style={s.view}>
+    <SafeAreaView style={[s.view, { backgroundColor: "white" }]}>
       <PoppinsHeadText style={{ textAlign: "center" }}>
         Register as a?
       </PoppinsHeadText>

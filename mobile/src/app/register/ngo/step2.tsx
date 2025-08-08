@@ -1,13 +1,20 @@
-import InputBox from "@/src/components/InputBox";
-import PoppinsText from "@/src/components/PoppinsText";
-import Button from "@/src/core/auth/components/Button";
-import StepSkeleton from "@/src/core/auth/components/StepSkeleton";
+import {
+  BottomUpModal,
+  InputBox,
+  MapComponent,
+  PoppinsText,
+} from "@/src/components";
+import StepButtons from "@/src/core/auth/components/RegisterButton";
+import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep2NgoData } from "@/src/core/auth/hooks/ngo/step2Context";
-import { step2Schema } from "@/src/validation/ngo/ngoRegistration.schema";
+import { BORDER_RADIUS, COLORS } from "@/src/themes";
+import { step2Schema } from "@/src/validation/register/ngo/ngoRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { Controller, useForm } from "react-hook-form";
-import { StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { Controller, useForm, useFormState } from "react-hook-form";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { z } from "zod";
 
 type step2Type = z.infer<typeof step2Schema>;
@@ -15,6 +22,7 @@ const NgoRegistrationStep2 = () => {
   const {
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<step2Type>({
     resolver: zodResolver(step2Schema),
@@ -33,11 +41,46 @@ const NgoRegistrationStep2 = () => {
 
   const onSubmit = (data: step2Type) => {
     setData(data);
-    alert("Step 2 completed");
     router.push("/register/ngo/step3");
   };
+
+  const [showMap, setShowMap] = useState(false);
+  const [locationDetails, setLocationDetails] =
+    useState<Location.LocationGeocodedAddress | null>(null);
+
+  useEffect(() => {
+    if (locationDetails) {
+      const data = {
+        location: {
+          state: locationDetails.region!,
+          district: locationDetails.district!,
+          city: locationDetails.city!,
+          pincode: locationDetails.postalCode!,
+        },
+      };
+      reset(data);
+    }
+  }, [locationDetails, reset]);
   return (
-    <StepSkeleton totalSteps={4} currStep={2} heading="Where can we find you?">
+    <RegistrationStepSkeleton
+      totalSteps={4}
+      currStep={2}
+      heading="Where can we find you?"
+    >
+      <View>
+        <Pressable
+          style={({ pressed }) => [s.btn, { opacity: pressed ? 0.8 : 1 }]}
+          onPress={() => setShowMap(true)}
+        >
+          <PoppinsText>Select in Map</PoppinsText>
+        </Pressable>
+      </View>
+      <BottomUpModal isVisible={showMap} setIsVisible={setShowMap}>
+        <MapComponent
+          locationDetails={locationDetails}
+          setLocationDetails={setLocationDetails}
+        />
+      </BottomUpModal>
       <Controller
         control={control}
         render={function ({ field: { value, onChange } }) {
@@ -95,15 +138,27 @@ const NgoRegistrationStep2 = () => {
       {errors.location?.pincode && (
         <PoppinsText>{errors.location?.pincode.message}</PoppinsText>
       )}
-      <Button
+      <StepButtons
         totalSteps={3}
         currStep={2}
         onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
       />
-    </StepSkeleton>
+    </RegistrationStepSkeleton>
   );
 };
 
 export default NgoRegistrationStep2;
 
-const styles = StyleSheet.create({});
+const s = StyleSheet.create({
+  btn: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: COLORS.gray,
+    borderWidth: 1,
+    borderRadius: BORDER_RADIUS,
+    boxShadow: "0px 4px 6px rgba(0,0,0,0.2)",
+    flex: 1,
+    paddingVertical: 10,
+  },
+});

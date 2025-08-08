@@ -1,5 +1,6 @@
 import PoppinsText from "@/src/components/PoppinsText";
 import StepIndicator from "@/src/core/auth/components/StepIndicator";
+import { RelativePathString, useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 type StepsProps = {
@@ -7,6 +8,7 @@ type StepsProps = {
   currStep: number;
 };
 const Steps = ({ totalSteps, currStep }: StepsProps) => {
+  const router = useRouter();
   return (
     <View style={s.view}>
       <View style={s.steps}>

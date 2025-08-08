@@ -27,7 +27,7 @@ export async function createDonation(
   }
 }
 
-export async function getDonationHistory(
+export async function getFullDonationHistory(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
@@ -38,12 +38,58 @@ export async function getDonationHistory(
     }
 
     const history = await Donation.find({ donor: userId, isDeleted: false })
-      .populate("acceptedBy", "name email")
+      .populate("acceptedBy", "name profilePicture")
       .sort({ createdAt: -1 });
 
     return reply
       .code(201)
       .send(successResponse(history, "Donation history fetched successfully"));
+  } catch (err) {
+    return reply.code(500).send(errorResponse("Internal Server Error", err));
+  }
+}
+
+export async function getPartialDonationHistory(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  try {
+    const userId = request.user?.id;
+    if (!userId) {
+      return reply.code(500).send(errorResponse("Unauthorized"));
+    }
+
+    const history = await Donation.find(
+      { donor: userId, isDeleted: false },
+      { foodItems: 1, createdAt: 1, acceptedBy: 1, status: 1 },
+    )
+      .populate("acceptedBy", "name profilePicture location")
+      .sort({ createdAt: -1 });
+
+    return reply
+      .code(201)
+      .send(successResponse(history, "Donation history fetched successfully"));
+  } catch (err) {
+    return reply.code(500).send(errorResponse("Internal Server Error", err));
+  }
+}
+
+export async function getDonationById(
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply,
+) {
+  try {
+    const { id } = request.params;
+    const donation = (await Donation.findOne({ _id: id, isDeleted: false })
+      .populate("donor", "name email")
+      .populate("acceptedBy", "name email")) as DonationDoc;
+
+    if (!donation) {
+      return reply.code(404).send(errorResponse("Donation not found"));
+    }
+    return reply
+      .code(200)
+      .send(successResponse(donation, "Donation retrieved successfully"));
   } catch (err) {
     return reply.code(500).send(errorResponse("Internal Server Error", err));
   }

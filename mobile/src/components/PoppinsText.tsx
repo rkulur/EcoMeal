@@ -6,6 +6,7 @@ import {
   TextStyle,
   View,
 } from "react-native";
+import { FONT } from "../themes";
 
 type PoppinsTextProps = TextProps & { style?: StyleProp<TextStyle> };
 const PoppinsText = ({ style, ...props }: PoppinsTextProps) => {
@@ -14,7 +15,7 @@ const PoppinsText = ({ style, ...props }: PoppinsTextProps) => {
       {...props}
       style={[
         {
-          fontFamily: "Poppins_400Regular",
+          fontFamily: FONT.REGULAR,
         },
         style,
       ]}

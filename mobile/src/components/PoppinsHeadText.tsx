@@ -6,7 +6,7 @@ import {
   TextStyle,
   View,
 } from "react-native";
-import { FONT_SIZE } from "../themes";
+import { FONT, FONT_SIZE } from "../themes";
 
 type PoppinsHeadTextProps = TextProps & { style?: StyleProp<TextStyle> };
 const PoppinsHeadText = ({ style, ...props }: PoppinsHeadTextProps) => {
@@ -15,8 +15,8 @@ const PoppinsHeadText = ({ style, ...props }: PoppinsHeadTextProps) => {
       {...props}
       style={[
         {
-          fontFamily: "Poppins_700Bold",
-          fontSize: FONT_SIZE.heading,
+          fontFamily: FONT.BOLD,
+          fontSize: FONT_SIZE.xlarge,
         },
         style,
       ]}

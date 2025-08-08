@@ -1,32 +1,35 @@
-import {
-  KeyboardType,
-  StyleSheet,
-  Text,
-  TextInput,
-  TextInputProps,
-  View,
-} from "react-native";
+import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
+import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, HEIGHT } from "../themes";
 import PoppinsText from "./PoppinsText";
-import { BORDER_RADIUS, FONT_SIZE } from "../themes";
+import { useState } from "react";
 
 interface InputBoxProps extends TextInputProps {
   label: string;
   onChangeText: (text: string) => void;
+  value?: string;
 }
 const InputBox = ({
   label,
   keyboardType,
   onChangeText,
-  ...textInputProps
+  style,
+  value,
 }: InputBoxProps) => {
+  const [isFocus, setIsFocus] = useState(false);
   return (
-    <View style={styles.view}>
-      <PoppinsText style={styles.label}>{label}</PoppinsText>
+    <View style={[styles.view]}>
+      <PoppinsText style={[styles.label, style]}>{label}</PoppinsText>
       <TextInput
+        value={value}
         keyboardType={keyboardType}
         onChangeText={onChangeText}
-        style={styles.input}
-        {...textInputProps}
+        style={[
+          styles.input,
+          style,
+          { borderColor: isFocus ? "black" : COLORS.outlineGray },
+        ]}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
       />
     </View>
   );
@@ -39,12 +42,15 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   label: {
-    fontSize: FONT_SIZE.subheading,
+    fontSize: FONT_SIZE.medium,
   },
   input: {
+    padding: 10,
     borderRadius: BORDER_RADIUS,
     borderColor: "#000000",
     borderWidth: 1,
-    height: 50,
+    height: HEIGHT.input,
+    fontFamily: FONT.REGULAR,
+    backgroundColor: COLORS.white,
   },
 });

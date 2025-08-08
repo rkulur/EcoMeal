@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RelativePathString, useRouter } from "expo-router";
 import {
   createContext,
@@ -8,9 +7,13 @@ import {
   useEffect,
   useState,
 } from "react";
+import * as SecureStore from "expo-secure-store";
 
 type AuthContextType = {
-  signIn: (token: string, role: string) => void;
+  signIn: (
+    token: string,
+    role: "ngo" | "donor" | "composter" | "carehome" | "admin",
+  ) => void;
   signOut: () => void;
   token: string | null;
   isLoading: boolean;
@@ -30,36 +33,47 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<AuthContextType["role"] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem("@token").then((t) => {
+    SecureStore.getItemAsync("token").then((t) => {
       setToken(t);
       setIsLoading(false);
     });
-    AsyncStorage.getItem("@role").then((r) => {
-      setRole(r);
+    SecureStore.getItemAsync("role").then((r) => {
+      setRole(r as AuthContextType["role"]);
     });
   }, []);
 
-  const signIn = useCallback(async (t: string, role: string) => {
-    await AsyncStorage.setItem("@token", t);
-    await AsyncStorage.setItem("@role", role);
-    setToken(t);
-    setRole(role);
-    router.replace("/");
-  }, []);
+  const signIn = useCallback(
+    async (
+      t: string,
+      role: "ngo" | "donor" | "composter" | "carehome" | "admin",
+    ) => {
+      try {
+        await SecureStore.setItemAsync("token", t);
+        await SecureStore.setItemAsync("role", role);
+        setToken(t);
+        setRole(role);
+        router.replace("/");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [],
+  );
   const signOut = useCallback(async () => {
-    await AsyncStorage.removeItem("@token");
-    await AsyncStorage.removeItem("@role");
+    await SecureStore.deleteItemAsync("token");
+    await SecureStore.deleteItemAsync("role");
     setToken(null);
     setRole(null);
+    console.log("Inside signout");
     router.replace("/login" as RelativePathString);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ signIn, signOut, token, isLoading }}>
+    <AuthContext.Provider value={{ signIn, signOut, token, isLoading, role }}>
       {children}
     </AuthContext.Provider>
   );

@@ -11,14 +11,11 @@ export const registerComposter = async (
   try {
     const {
       name,
-      organizationName,
       email,
       phone,
       password,
       confirmPassword,
       location,
-      verificationDocument,
-      coordinates,
       acceptedFoodTypes,
       capacityKgPerDay,
     } = request.body as any;
@@ -32,13 +29,10 @@ export const registerComposter = async (
     const composter = await Composter.create({
       name,
       role: "composter",
-      organizationName,
       email,
       phone,
       password: hashedPassword,
       location,
-      coordinates,
-      verificationDocument,
       acceptedFoodTypes,
       capacityKgPerDay,
     });
@@ -49,7 +43,12 @@ export const registerComposter = async (
       .code(201)
       .send(
         successResponse(
-          { token, user: composter },
+          {
+            token,
+            name: composter.name,
+            email: composter.email,
+            role: composter.role,
+          },
           "Composter registered successfully",
         ),
       );

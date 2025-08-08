@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <View style={s.view}>
       <Image source={logo} style={s.logo} />
-      <PoppinsHeadText>EcoMeal</PoppinsHeadText>
+      <PoppinsHeadText style={{ fontSize: 37 }}>EcoMeal</PoppinsHeadText>
     </View>
   );
 };
@@ -19,6 +19,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     justifyContent: "center",
+    alignItems: "center",
   },
   logo: {
     width: 48,

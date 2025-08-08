@@ -1,23 +1,21 @@
-import { api } from "@/src/api/axios";
-import ImageInput from "@/src/components/ImageInput";
-import InputBox from "@/src/components/InputBox";
-import PoppinsText from "@/src/components/PoppinsText";
+import { ImageInput, InputBox, PoppinsText } from "@/src/components";
+import { registerDonor } from "@/src/core/auth/api/register";
 import { useAuth } from "@/src/core/auth/AuthProvider";
-import Button from "@/src/core/auth/components/Button";
-import StepSkeleton from "@/src/core/auth/components/StepSkeleton";
+import StepButtons from "@/src/core/auth/components/RegisterButton";
+import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep1DonorData } from "@/src/core/auth/hooks/donor/step1Context";
 import { useStep2DonorData } from "@/src/core/auth/hooks/donor/step2Context";
 import { useStep3DonorData } from "@/src/core/auth/hooks/donor/step3Context";
 import { BORDER_RADIUS, COLORS } from "@/src/themes";
 import { uploadImgToCloud } from "@/src/utils/supabase";
-import { step3Schema } from "@/src/validation/donor/donorRegistration.schema";
+import {
+  DonorRegistrationType,
+  step3Schema,
+} from "@/src/validation/register/donor/donorRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AxiosError } from "axios";
-import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { z } from "zod";
-import { prettifyError } from "zod/v4/core";
 
 type step3Type = z.infer<typeof step3Schema>;
 const DonorRegistrationStep3 = () => {
@@ -40,10 +38,9 @@ const DonorRegistrationStep3 = () => {
     },
   });
 
-  const { data: data1, setData: setData1 } = useStep1DonorData();
-  const { data: data2, setData: setData2 } = useStep2DonorData();
+  const { data: data1 } = useStep1DonorData();
+  const { data: data2 } = useStep2DonorData();
   const { data: data3, setData: setData3 } = useStep3DonorData();
-  const router = useRouter();
 
   const onSubmit = async (data: step3Type) => {
     setData3(data);
@@ -53,21 +50,31 @@ const DonorRegistrationStep3 = () => {
       folder: "verificationDocument",
     });
 
-    try {
-      const res = await api.post("/auth/register/donor", {
-        ...data1,
-        ...data2,
-        ...data3,
-        verificationDocument: url,
-      });
-      alert(JSON.stringify(res));
-      signIn(res.data.token, res.data.role);
-    } catch (error) {
-      console.log(error);
+    const donorData = {
+      ...data1,
+      ...data2,
+      ...data3,
+      verificationDocument: url,
+    } as DonorRegistrationType;
+
+    const res = await registerDonor(donorData);
+    if (!res.ok) {
+      alert(res.error.message);
+      console.log(res.error.stack);
+      return;
     }
+
+    alert("Registration Successfull");
+
+    const { token, role } = res.data;
+    signIn(token, role);
   };
   return (
-    <StepSkeleton totalSteps={3} currStep={3} heading="Build trust and impact">
+    <RegistrationStepSkeleton
+      totalSteps={3}
+      currStep={3}
+      heading="Build trust and impact"
+    >
       <Controller
         control={control}
         render={function ({ field: { value, onChange } }) {
@@ -154,12 +161,12 @@ const DonorRegistrationStep3 = () => {
       {/* {errors.socialMedia?.twitter && ( */}
       {/*   <PoppinsText>{errors.socialMedia.twitter.message}</PoppinsText> */}
       {/* )} */}
-      <Button
+      <StepButtons
         totalSteps={3}
         currStep={3}
         onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
       />
-    </StepSkeleton>
+    </RegistrationStepSkeleton>
   );
 };
 

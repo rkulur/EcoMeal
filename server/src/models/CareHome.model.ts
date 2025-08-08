@@ -4,7 +4,7 @@ import User, { IUser } from "./User.model";
 export interface ICareHome extends IUser {
   pointOfContact: string;
   preferredPickupTime: string;
-  numberOfResidents: number;
+  noOfResidents: number;
   foodTypeRequired: (
     | "vegetarian"
     | "non-vegetarian"
@@ -22,11 +22,7 @@ const careHomeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  preferredPickupTime: {
-    type: String,
-    required: true,
-  },
-  numberOfResidents: {
+  noOfResidents: {
     type: Number,
     required: true,
   },
@@ -54,4 +50,3 @@ const careHomeSchema = new mongoose.Schema({
 });
 
 export default User.discriminator<ICareHome>("carehome", careHomeSchema);
-

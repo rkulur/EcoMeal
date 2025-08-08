@@ -1,22 +1,26 @@
+import { InputBox, PoppinsText, ImageInput } from "@/src/components";
 import { api } from "@/src/api/axios";
-import ImageInput from "@/src/components/ImageInput";
-import InputBox from "@/src/components/InputBox";
-import PoppinsText from "@/src/components/PoppinsText";
 import { useAuth } from "@/src/core/auth/AuthProvider";
-import Button from "@/src/core/auth/components/Button";
-import StepSkeleton from "@/src/core/auth/components/StepSkeleton";
-import { useStep1NgoData } from "@/src/core/auth/hooks/ngo/step1Context";
-import { useStep2NgoData } from "@/src/core/auth/hooks/ngo/step2Context";
-import { useStep3NgoData } from "@/src/core/auth/hooks/ngo/step3Context";
-import { usestep4NgoData } from "@/src/core/auth/hooks/ngo/step4Context";
+import StepButtons from "@/src/core/auth/components/RegisterButton";
+import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
+import {
+  useStep1NgoData,
+  useStep2NgoData,
+  useStep3NgoData,
+  useStep4NgoData,
+} from "@/src/core/auth/hooks/ngo";
 import { BORDER_RADIUS, COLORS } from "@/src/themes";
 import { uploadImgToCloud } from "@/src/utils/supabase";
-import { step4Schema } from "@/src/validation/ngo/ngoRegistration.schema";
+import {
+  NgoRegistrationType,
+  step4Schema,
+} from "@/src/validation/register/ngo/ngoRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { z } from "zod";
+import { registerNgo } from "@/src/core/auth/api/register";
 
 type step4Type = z.infer<typeof step4Schema>;
 const NgoRegistrationstep4 = () => {
@@ -42,7 +46,7 @@ const NgoRegistrationstep4 = () => {
   const { data: data1 } = useStep1NgoData();
   const { data: data2 } = useStep2NgoData();
   const { data: data3 } = useStep3NgoData();
-  const { data: data4, setData: setData4 } = usestep4NgoData();
+  const { data: data4, setData: setData4 } = useStep4NgoData();
   const router = useRouter();
 
   const onSubmit = async (data: step4Type) => {
@@ -53,23 +57,29 @@ const NgoRegistrationstep4 = () => {
       folder: "verificationDocument",
     });
 
-    try {
-      const res = await api.post("/auth/register/ngo", {
-        ...data1,
-        ...data2,
-        ...data3,
-        ...data4,
-        verificationDocument: url,
-      });
-      alert(JSON.stringify(res));
-      signIn(res.data.token, res.data.role);
-    } catch (error) {
-      console.error({ ...error });
-      console.log({ ...error });
+    const ngoData = {
+      ...data1,
+      ...data2,
+      ...data3,
+      ...data4,
+      verificationDocument: url,
+    } as NgoRegistrationType;
+    const res = await registerNgo(ngoData);
+    if (!res.ok) {
+      alert(res.error.message);
+      console.log(res.error.stack);
+      return;
     }
+    alert("Registration Successfull");
+    const { token, role } = res.data;
+    signIn(token, role);
   };
   return (
-    <StepSkeleton totalSteps={4} currStep={4} heading="Build trust and impact">
+    <RegistrationStepSkeleton
+      totalSteps={4}
+      currStep={4}
+      heading="Build trust and impact"
+    >
       <Controller
         control={control}
         render={function ({ field: { value, onChange } }) {
@@ -156,12 +166,12 @@ const NgoRegistrationstep4 = () => {
       {/* {errors.socialMedia?.twitter && ( */}
       {/*   <PoppinsText>{errors.socialMedia.twitter.message}</PoppinsText> */}
       {/* )} */}
-      <Button
+      <StepButtons
         totalSteps={3}
         currStep={3}
         onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
       />
-    </StepSkeleton>
+    </RegistrationStepSkeleton>
   );
 };
 

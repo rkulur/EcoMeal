@@ -1,7 +1,7 @@
 import "react-native-url-polyfill/auto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, processLock } from "@supabase/supabase-js";
-import { resizeImg } from "./resize";
+import { resizeImages } from "./resize";
 import { uriToArrayBuffer } from "./uriToArrayBuffer";
 import { ImagePickerResult } from "expo-image-picker";
 
@@ -20,7 +20,7 @@ export const supabase = createClient(
 );
 
 type UploadImgToCloudType = {
-  bucket: string;
+  bucket?: string;
   folder: string;
   resizedURI: string;
 };
@@ -28,7 +28,7 @@ type UploadImgToCloudType = {
 export async function uploadImgToCloud({
   resizedURI,
   folder,
-  bucket,
+  bucket = "ecomeal",
 }: UploadImgToCloudType) {
   const buffer = await uriToArrayBuffer(resizedURI);
   const ext = resizedURI.split(".").pop() || "jpg";

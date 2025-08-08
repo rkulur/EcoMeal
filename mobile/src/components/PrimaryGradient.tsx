@@ -1,19 +1,16 @@
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Button,
-  Pressable,
-  Text,
-  TouchableOpacity,
-  ViewProps,
-} from "react-native";
+import { Pressable, ViewProps } from "react-native";
 import { GRADIENT_PRIMARY } from "../themes";
 import PoppinsText from "./PoppinsText";
 
-type PrimaryGradientProps = { text: string } & ViewProps;
+type PrimaryGradientProps = { text: string; onPress: () => void } & ViewProps;
 
-const PrimaryButton = ({ text, style }: PrimaryGradientProps) => {
+const PrimaryButton = ({ text, style, onPress }: PrimaryGradientProps) => {
   return (
-    <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+    <Pressable
+      style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
+      onPress={onPress}
+    >
       <LinearGradient colors={GRADIENT_PRIMARY} style={[style]}>
         <PoppinsText style={{ color: "#fff" }}>{text}</PoppinsText>
       </LinearGradient>

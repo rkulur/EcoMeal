@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import {
   BORDER_RADIUS,
   COLORS,
@@ -15,38 +15,33 @@ export default function StepIndicator({
 }: StepIndicatorProps) {
   const color = "rgba(0,0,0,0.05)";
   return (
-    <LinearGradient
-      colors={isCurrStep ? GRADIENT_PRIMARY : GRADIENT_SECONDARY}
-      style={styles.container}
-    >
-      {/* Top */}
+    <Pressable>
       <LinearGradient
-        colors={[color, "transparent"]}
-        style={styles.shadowTop}
-      />
-
-      {/* Bottom */}
-      <LinearGradient
-        colors={["transparent", color]}
-        style={styles.shadowBottom}
-      />
-
-      {/* Left */}
-      <LinearGradient
-        colors={[color, "transparent"]}
-        style={styles.shadowLeft}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      />
-
-      {/* Right */}
-      <LinearGradient
-        colors={["transparent", color]}
-        style={styles.shadowRight}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      />
-    </LinearGradient>
+        colors={isCurrStep ? GRADIENT_PRIMARY : GRADIENT_SECONDARY}
+        style={styles.container}
+      >
+        <LinearGradient
+          colors={[color, "transparent"]}
+          style={styles.shadowTop}
+        />
+        <LinearGradient
+          colors={["transparent", color]}
+          style={styles.shadowBottom}
+        />
+        <LinearGradient
+          colors={[color, "transparent"]}
+          style={styles.shadowLeft}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        />
+        <LinearGradient
+          colors={["transparent", color]}
+          style={styles.shadowRight}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        />
+      </LinearGradient>
+    </Pressable>
   );
 }
 

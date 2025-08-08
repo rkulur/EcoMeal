@@ -16,7 +16,7 @@ export default fp(async function (fastify: FastifyInstance) {
         const coded = await request.jwtVerify<JwtPayload>();
         request.user = coded;
       } catch (err) {
-        reply.send(errorResponse("Error", err));
+        reply.status(401).send(errorResponse("Error", err));
       }
     },
   );

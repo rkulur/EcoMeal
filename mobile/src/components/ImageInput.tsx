@@ -3,82 +3,92 @@ import * as ImagePicker from "expo-image-picker";
 import { Alert, Image, Pressable, StyleSheet, View } from "react-native";
 import { BORDER_RADIUS, COLORS } from "../themes";
 import { useEffect } from "react";
-import { resizeImg } from "../utils/resize";
+import { resizeImages } from "../utils/resize";
+import Toast from "react-native-toast-message";
 
 type ImageInputType = {
   value: string | undefined;
   onChange: (uri: string | null) => void;
 };
+
+export const pickFromGallery = async (multiple: boolean = false) => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    allowsEditing: true,
+    allowsMultipleSelection: multiple,
+    selectionLimit: 5,
+    quality: 1,
+  });
+
+  if (result.canceled) {
+    return null;
+  }
+
+  return resizeImages(result);
+};
+
+export const takePhoto = async () => {
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    quality: 1,
+  });
+  if (result.canceled) {
+    return null;
+  }
+
+  return resizeImages(result);
+};
+
+export const requestCameraPermission = async () => {
+  const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+  const libraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (cameraStatus.status !== "granted" || libraryStatus.status !== "granted") {
+    Toast.show({
+      type: "error",
+      text1: "Permission required",
+      text2: "We need permissions to access camera and photos.",
+    });
+  }
+};
+
+export const chooseOption = () =>
+  new Promise<boolean>((resolve, _) => {
+    Alert.alert(
+      "Upload Photo",
+      "Choose an option",
+      [
+        {
+          text: "Camera",
+          onPress: () => {
+            resolve(true);
+          },
+        },
+        {
+          text: "Gallery",
+          onPress: () => {
+            resolve(false);
+          },
+        },
+        { text: "Cancel", style: "cancel" },
+      ],
+      { cancelable: true },
+    );
+  });
+
 const ImageInput = ({ value, onChange }: ImageInputType) => {
-  const pickFromGallery = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (result.canceled) {
-      return null;
-    }
-
-    return resizeImg(result);
-  };
-
-  const takePhoto = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      quality: 1,
-    });
-    if (result.canceled) {
-      return null;
-    }
-
-    return resizeImg(result);
-  };
-
   const handleVerificationDocument = async () => {
-    const useCamera = await (() =>
-      new Promise((resolve, _) => {
-        Alert.alert(
-          "Upload Photo",
-          "Choose an option",
-          [
-            {
-              text: "Camera",
-              onPress: () => {
-                resolve(true);
-              },
-            },
-            {
-              text: "Gallery",
-              onPress: () => {
-                resolve(false);
-              },
-            },
-            { text: "Cancel", style: "cancel" },
-          ],
-          { cancelable: true },
-        );
-      }))();
-    if (useCamera) onChange(await takePhoto());
-    else onChange(await pickFromGallery());
+    const useCamera = await chooseOption();
+    let urls;
+    if (useCamera) {
+      urls = await takePhoto();
+      onChange(urls && urls[0]);
+    } else {
+      urls = await pickFromGallery();
+      onChange(urls && urls[0]);
+    }
   };
 
   useEffect(() => {
-    const requestCameraPermission = async () => {
-      const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-      const libraryStatus =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (
-        cameraStatus.status !== "granted" ||
-        libraryStatus.status !== "granted"
-      ) {
-        Alert.alert(
-          "Permission required",
-          "We need permissions to access camera and photos.",
-        );
-      }
-    };
     requestCameraPermission();
   }, []);
   return (

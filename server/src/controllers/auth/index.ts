@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { OAuth2Client } from "google-auth-library";
 import User, { IUser } from "../../models/User.model";
 import { generateToken } from "../../utils/generateToken";
-import { errorResponse } from "../../utils/responseWrapper";
+import { successResponse } from "../../utils/responseWrapper";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 interface UserData {
@@ -128,13 +128,16 @@ const login = async (request: LoginRequest, reply: FastifyReply) => {
 
     const token = generateToken(request.server.jwt, user);
 
-    reply.send({
+    const payload = {
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       token,
-    });
+    };
+    return reply
+      .code(201)
+      .send(successResponse(payload, "Donor registered successfully"));
   } catch (error) {
     reply.code(500).send({
       error: error instanceof Error ? error.message : "An error occurred",
@@ -143,7 +146,7 @@ const login = async (request: LoginRequest, reply: FastifyReply) => {
 };
 
 export * from "./registerCarehome.controller";
+export * from "./registerComposter.controller";
 export * from "./registerDonor.controller";
 export * from "./registerNgo.controller";
-export * from "./registerComposter.controller";
 export { googleAuth, login };
