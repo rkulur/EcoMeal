@@ -1,25 +1,14 @@
 import { PoppinsText } from "@/src/components";
-import DefaultProfile from "@/src/components/DefaultProfile";
-import {
-  BORDER_RADIUS,
-  COLORS,
-  FONT,
-  FONT_SIZE,
-  GRADIENT_SECONDARY_REVERSED,
-  SPACING,
-} from "@/src/themes";
-import getDonationName from "@/src/utils/getDonationName";
+import OutlineButton from "@/src/components/OutlineButton";
+import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
 import {
   DonationHistoryListType,
   DonationType,
 } from "@/src/validation/donate.schema";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Text, View } from "react-native";
-import DonorCard from "../../donor/components/impact/DonorCard";
+import { StyleSheet, View } from "react-native";
 import Status from "../../donor/components/dashboard/Status";
-import OutlineButton from "@/src/components/OutlineButton";
 type IncomingFoodCardProps = {
-  donation: DonationHistoryListType;
+  donation?: DonationHistoryListType;
 };
 
 const IncomingFoodCard = ({ donation }: IncomingFoodCardProps) => {
@@ -35,11 +24,10 @@ const IncomingFoodCard = ({ donation }: IncomingFoodCardProps) => {
           >
             {"Delivery"}
           </PoppinsText>
-          <PoppinsText>ETA: 30min</PoppinsText>
-          <PoppinsText>NGO: Helping Hands</PoppinsText>
+          <PoppinsText>NGO: {donation?.acceptedBy?.name}</PoppinsText>
         </View>
         <View>
-          <Status status="assigned" />
+          <Status status={donation?.status} />
         </View>
       </View>
       <PoppinsText
@@ -50,18 +38,15 @@ const IncomingFoodCard = ({ donation }: IncomingFoodCardProps) => {
         {"Items"}
       </PoppinsText>
       <View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <PoppinsText>Cooked Meals</PoppinsText>
-          <PoppinsText>10 plates</PoppinsText>
-        </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <PoppinsText>Cooked Meals</PoppinsText>
-          <PoppinsText>10 plates</PoppinsText>
-        </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <PoppinsText>Cooked Meals</PoppinsText>
-          <PoppinsText>10 plates</PoppinsText>
-        </View>
+        {donation?.foodItems.map((item, idx) => (
+          <View
+            key={idx}
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <PoppinsText>{item.name}</PoppinsText>
+            <PoppinsText>{item.quantity + " " + item.unit}</PoppinsText>
+          </View>
+        ))}
       </View>
       <OutlineButton onPress={() => null} text={"View Details"} />
     </View>

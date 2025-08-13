@@ -3,7 +3,7 @@ import { COLORS, FONT_SIZE, SPACING, STATUS_COLORS } from "@/src/themes";
 import { StyleSheet, Text, View } from "react-native";
 
 type StatusProps = {
-  status:
+  status?:
     | "pending"
     | "accepted"
     | "assigned"
