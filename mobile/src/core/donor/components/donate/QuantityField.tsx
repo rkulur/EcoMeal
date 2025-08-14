@@ -10,7 +10,7 @@ type QuantityFieldProps = {
   foodItem: {
     name: string;
     quantity: number;
-    expiryDate: Date;
+    expiryDate?: Date;
     unit?:
       | "plates"
       | "servings"
@@ -49,7 +49,7 @@ const QuantityField = ({ foodItem, onChange }: QuantityFieldProps) => {
     }
     intervalRef.current = setInterval(() => {
       applyChange();
-    }, 150);
+    }, 150) as unknown as number;
   };
 
   const handleIncrementPressIn = () => handlePress("increment");

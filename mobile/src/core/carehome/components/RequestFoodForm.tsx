@@ -10,14 +10,12 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { FieldErrors } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
-import QuantityField from "./QuantityField";
-import SelectDate from "./SelectDate";
+import QuantityField from "../../donor/components/donate/QuantityField";
 
-type FoodItemFormProps = {
-  foodItem: {
+type RequestFoodFormProps = {
+  requestedItem: {
     name: string;
     quantity: number;
-    expiryDate: Date;
     unit?:
       | "plates"
       | "servings"
@@ -34,10 +32,9 @@ type FoodItemFormProps = {
   count?: number;
   remove: () => void;
   errors: FieldErrors<{
-    foodItems: {
+    requestedItem: {
       name: string;
       quantity: number;
-      expiryDate: Date;
       unit?:
         | "plates"
         | "servings"
@@ -52,12 +49,12 @@ type FoodItemFormProps = {
     }[];
   }>;
 };
-const FoodItemForm = ({
-  foodItem,
+const RequestFoodForm = ({
+  requestedItem,
   onChange,
   count = 1,
   remove,
-}: FoodItemFormProps) => {
+}: RequestFoodFormProps) => {
   const categoryOptions = [
     { label: "Plates", value: "plates" },
     { label: "Servings", value: "servings" },
@@ -75,20 +72,9 @@ const FoodItemForm = ({
       <View
         style={{
           flexDirection: "row",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
         }}
       >
-        <View
-          style={{
-            borderRadius: BORDER_RADIUS,
-            backgroundColor: COLORS.hoverGray,
-            padding: 10,
-          }}
-        >
-          <PoppinsText style={{ fontFamily: FONT.BOLD }}>
-            Item {count}
-          </PoppinsText>
-        </View>
         <Ionicons
           name="trash-bin"
           size={20}
@@ -98,31 +84,24 @@ const FoodItemForm = ({
       </View>
       <InputBox
         label="Food Name"
-        onChangeText={(text) => onChange({ ...foodItem, name: text })}
-        value={foodItem?.name}
+        onChangeText={(text) => onChange({ ...requestedItem, name: text })}
+        value={requestedItem?.name}
         style={s.inputText}
       />
       <View style={s.subcontainer}>
-        <QuantityField foodItem={foodItem} onChange={onChange} />
+        <QuantityField foodItem={requestedItem} onChange={onChange} />
         <CustomSelect
           label="Unit"
           categoryOptions={categoryOptions}
-          value={foodItem?.unit}
-          onValueChange={(text) => onChange({ ...foodItem, unit: text })}
-        />
-      </View>
-      <View>
-        <PoppinsText>Expiry Date</PoppinsText>
-        <SelectDate
-          defaultDate={foodItem.expiryDate}
-          onChange={(date) => onChange({ ...foodItem, expiryDate: date })}
+          value={requestedItem?.unit}
+          onValueChange={(text) => onChange({ ...requestedItem, unit: text })}
         />
       </View>
     </View>
   );
 };
 
-export default FoodItemForm;
+export default RequestFoodForm;
 
 const s = StyleSheet.create({
   container: {
