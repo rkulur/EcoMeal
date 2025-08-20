@@ -6,7 +6,6 @@ function getLocalIP() {
   for (const name of Object.keys(nets)) {
     for (const ni of nets[name]) {
       if (ni.family === "IPv4" && !ni.internal) {
-        console.log(ni.address);
         return ni.address;
       }
     }
@@ -15,6 +14,7 @@ function getLocalIP() {
 }
 
 const ip = getLocalIP();
+console.log("IP: ", ip);
 const apiUrl = ip
   ? `http://${ip}:3000/api/v1`
   : process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000/api/v1";

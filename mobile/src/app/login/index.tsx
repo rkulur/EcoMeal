@@ -36,18 +36,20 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.view, { backgroundColor: "white" }]}>
-      <View style={{ alignItems: "center" }}>
-        <Image source={ecomealLogo} style={styles.logo} />
-      </View>
+    <SafeAreaView style={[styles.view]}>
       <View>
-        <PoppinsHeadText style={styles.heading}>
-          Welcome to EcoMeal
-        </PoppinsHeadText>
-        <PoppinsText style={styles.subheading}>
-          A platform connecting donors, NGOs, carehomes and composters to make
-          difference together
-        </PoppinsText>
+        <View style={{ alignItems: "center" }}>
+          <Image source={ecomealLogo} style={styles.logo} />
+        </View>
+        <View>
+          <PoppinsHeadText style={styles.heading}>
+            Welcome to EcoMeal
+          </PoppinsHeadText>
+          <PoppinsText style={styles.subheading}>
+            A platform connecting donors, NGOs, carehomes and composters to make
+            difference together
+          </PoppinsText>
+        </View>
       </View>
       <Controller
         control={control}
@@ -87,7 +89,6 @@ const Login = () => {
         <PoppinsText>or</PoppinsText>
         <Line />
       </View>
-      {/* <SignInScreen /> */}
       <View
         style={{
           display: "flex",
@@ -105,7 +106,6 @@ const Login = () => {
             text="Register"
             style={{ textDecorationLine: "underline" }}
           />
-          ,
         </Link>
       </View>
     </SafeAreaView>
@@ -114,15 +114,17 @@ const Login = () => {
 
 const styles = StyleSheet.create({
   view: {
+    backgroundColor: "white",
+    height: "100%",
     paddingLeft: SPACING.page,
     paddingRight: SPACING.page,
-    paddingTop: SPACING.page / 1.5,
+    paddingTop: SPACING.page * 2,
     fontFamily: FONT.REGULAR,
     gap: 20,
   },
   logo: {
-    height: 48,
-    width: 48,
+    height: 70,
+    width: 70,
   },
   heading: {
     fontSize: FONT_SIZE.xxlarge,

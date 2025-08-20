@@ -26,3 +26,5 @@ export const FoodRequestSchema = z.object({
     .min(1, "At least one item must be requested"),
   comments: z.string().optional(),
 });
+
+export type FoodRequestType = z.infer<typeof FoodRequestSchema>;

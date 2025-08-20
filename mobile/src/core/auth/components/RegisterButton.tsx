@@ -16,7 +16,7 @@ type StepButtonProps = {
 };
 const StepButtons = ({ totalSteps, currStep, onPress }: StepButtonProps) => {
   const router = useRouter();
-  if (currStep === 1) {
+  if (currStep === 1 || totalSteps === 1) {
     return (
       <Pressable
         style={({ pressed }) => [
@@ -32,7 +32,9 @@ const StepButtons = ({ totalSteps, currStep, onPress }: StepButtonProps) => {
         onPress={onPress}
       >
         <LinearGradient colors={GRADIENT_PRIMARY} style={s.nextGradient}>
-          <PoppinsText style={s.text}>Next</PoppinsText>
+          <PoppinsText style={s.text}>
+            {totalSteps === 1 ? "Submit" : "Next"}
+          </PoppinsText>
         </LinearGradient>
       </Pressable>
     );

@@ -1,27 +1,23 @@
-import { InputBox, PoppinsHeadText, PoppinsText } from "@/src/components";
+import { InputBox, PoppinsHeadText } from "@/src/components";
 import GradientButton from "@/src/components/GradientButton";
 import PageHeader from "@/src/components/PageHeader";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
+import { postRequestDonation as postDonationRequest } from "@/src/core/carehome/api";
 import RequestFoodForm from "@/src/core/carehome/components/RequestFoodForm";
-import FoodItemForm from "@/src/core/donor/components/donate/FoodItemForm";
-import HeadingWithSubtext from "@/src/core/donor/components/HeadingWithSubtext";
+import { useFoodRequestData } from "@/src/core/carehome/hooks/requestFoodContext";
+import { GRADIENT_SECONDARY_REVERSED, HEIGHT, SPACING } from "@/src/themes";
 import {
-  FONT,
-  GRADIENT_SECONDARY_REVERSED,
-  HEIGHT,
-  SPACING,
-} from "@/src/themes";
-import { Step1Schema } from "@/src/validation/donate.schema";
-import { FoodRequestSchema } from "@/src/validation/requestFood.schema";
+  FoodRequestSchema,
+  FoodRequestType,
+} from "@/src/validation/requestFood.schema";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import {
-  Pressable,
+  GestureResponderEvent,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -49,6 +45,21 @@ const Requests = () => {
     name: "requestedItems",
   });
 
+  const router = useRouter();
+
+  const { setData } = useFoodRequestData();
+
+  const onSubmit = async (data: FoodRequestType) => {
+    setData(data);
+    const res = await postDonationRequest(data);
+    if (!res.ok) {
+      alert(res.error.message);
+      return;
+    }
+    alert("Food requested successfully!");
+    router.navigate("/carehome/dashboard");
+  };
+
   return (
     <SafeAreaView style={{ backgroundColor: "white" }}>
       <PageHeader />
@@ -66,15 +77,17 @@ const Requests = () => {
               control={control}
               name={`requestedItems.${idx}`}
               render={({ field: { value, onChange } }) => (
-                <RequestFoodForm
-                  requestedItem={value}
-                  count={idx + 1}
-                  onChange={onChange}
-                  remove={() => {
-                    remove(idx);
-                  }}
-                  errors={errors}
-                />
+                <>
+                  <RequestFoodForm
+                    requestedItem={value}
+                    count={idx + 1}
+                    onChange={onChange}
+                    remove={() => {
+                      remove(idx);
+                    }}
+                    errors={errors}
+                  />
+                </>
               )}
             />
           ))}
@@ -101,6 +114,11 @@ const Requests = () => {
               />
             )}
           />
+          <StepButtons
+            totalSteps={1}
+            currStep={1}
+            onPress={handleSubmit(onSubmit, (err) => console.error(err))}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -114,5 +132,6 @@ const s = StyleSheet.create({
     paddingHorizontal: SPACING.page,
     paddingTop: SPACING.page,
     height: "100%",
+    padding: 20,
   },
 });

@@ -32,7 +32,7 @@ type RequestFoodFormProps = {
   count?: number;
   remove: () => void;
   errors: FieldErrors<{
-    requestedItem: {
+    foodItems: {
       name: string;
       quantity: number;
       unit?:
@@ -72,9 +72,22 @@ const RequestFoodForm = ({
       <View
         style={{
           flexDirection: "row",
-          justifyContent: "flex-end",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
+        <View
+          style={{
+            borderRadius: BORDER_RADIUS,
+            backgroundColor: COLORS.hoverGray,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+          }}
+        >
+          <PoppinsText style={{ fontFamily: FONT.SEMI_BOLD }}>
+            Item {count}
+          </PoppinsText>
+        </View>
         <Ionicons
           name="trash-bin"
           size={20}

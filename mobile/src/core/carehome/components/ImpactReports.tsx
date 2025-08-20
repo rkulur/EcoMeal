@@ -68,9 +68,6 @@ export default ImpactReports;
 
 const s = StyleSheet.create({
   container: {
-    borderWidth: 1,
-    borderColor: COLORS.outlineGray,
-    padding: SPACING.cardHorizontal,
     gap: 10,
     borderRadius: BORDER_RADIUS,
   },
