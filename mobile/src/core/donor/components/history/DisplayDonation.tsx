@@ -1,9 +1,6 @@
 import { PoppinsText } from "@/src/components";
 import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/src/themes";
-import {
-  DonationHistoryListType,
-  DonationType,
-} from "@/src/validation/donate.schema";
+import { DonationHistoryListType } from "@/src/validation/donate.schema";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import getDonationHistory from "../../api/history";

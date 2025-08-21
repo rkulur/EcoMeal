@@ -1,7 +1,7 @@
 import { FastifyInstance, RouteHandler } from "fastify";
 import {
   approveDonation,
-  getDonationHistory,
+  getRequestHistory,
   getRequestedDonations,
   markDonationReceived,
   rejectDonation,
@@ -34,7 +34,7 @@ export default async function carehomeRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/history",
     { preHandler: [fastify.authenticate, fastify.isCareHome] },
-    getDonationHistory as RouteHandler,
+    getRequestHistory as RouteHandler,
   );
 
   fastify.post(

@@ -2,12 +2,9 @@ import DefaultProfile from "@/src/components/DefaultProfile";
 import PoppinsText from "@/src/components/PoppinsText";
 import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
 import { formatDateTime } from "@/src/utils/formatDateTime";
-import { StyleSheet, Text, View } from "react-native";
+import { DonationHistoryListType } from "@/src/validation/donate.schema";
+import { StyleSheet, View } from "react-native";
 import Status from "../dashboard/Status";
-import {
-  DonationHistoryListType,
-  DonationType,
-} from "@/src/validation/donate.schema";
 
 type HistoryCardProps = {
   donation: DonationHistoryListType;

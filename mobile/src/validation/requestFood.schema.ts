@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { NgoRegistrationType } from "./register/ngo/ngoRegistration.schema";
+import { DonationType } from "./donate.schema";
 
 const requestedItemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
@@ -28,3 +30,8 @@ export const FoodRequestSchema = z.object({
 });
 
 export type FoodRequestType = z.infer<typeof FoodRequestSchema>;
+
+export interface FoodRequestHistoryType extends FoodRequestType {
+  assignedNgo: NgoRegistrationType;
+  assignedDonation: DonationType;
+}

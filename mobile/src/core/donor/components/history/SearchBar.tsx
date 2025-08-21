@@ -1,19 +1,26 @@
 import { BORDER_RADIUS, COLORS, FONT } from "@/src/themes";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+} from "react-native";
 
-type SearchBarProps = {
+interface SearchBarProps extends TextInputProps {
   value: string;
   onChange: (text: string) => void;
-};
-const SearchBar = ({ value, onChange }: SearchBarProps) => {
+}
+
+const SearchBar = (props: SearchBarProps) => {
   return (
     <View style={s.container}>
       <Ionicons name="search" size={20} />
       <TextInput
-        placeholder="Search donations"
-        value={value}
-        onChangeText={(text) => onChange(text)}
+        {...props}
+        value={props.value}
+        onChangeText={(text) => props.onChange(text)}
         style={s.input}
       />
     </View>

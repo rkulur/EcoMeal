@@ -124,7 +124,7 @@ export const rejectDonation = async (
   }
 };
 
-export const getDonationHistory = async (
+export const getRequestHistory = async (
   request: FastifyRequest,
   reply: FastifyReply,
 ) => {
@@ -133,9 +133,8 @@ export const getDonationHistory = async (
 
     const requests = await FoodRequest.find({
       requester: careHomeId,
-      status: { $in: ["delivered", "rejected", "cancelled"] },
     })
-      .populate("assignedDonation")
+      .populate("assignedDonation assignedNgo")
       .sort({ updatedAt: -1 });
 
     reply.send(successResponse(requests));

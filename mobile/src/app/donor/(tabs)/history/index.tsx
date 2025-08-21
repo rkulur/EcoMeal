@@ -22,7 +22,11 @@ const History = () => {
             Donation History
           </PoppinsHeadText>
           <ImpactAtGlance noOfDonations={0} noOfMeals={0} noOfNgosHelped={0} />
-          <SearchBar value={searchString} onChange={setSearchString} />
+          <SearchBar
+            value={searchString}
+            placeholder="Enter donation"
+            onChange={setSearchString}
+          />
           <DisplayDonation />
         </View>
       </ScrollView>
