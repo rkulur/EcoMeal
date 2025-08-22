@@ -12,6 +12,7 @@ export const COLORS = {
   red: "#D02626",
   bgGreen: "#EBFFE8",
   lightGray: "#FBFCFD",
+  blue: "#0078D4",
 };
 
 export const STATUS_COLORS = {

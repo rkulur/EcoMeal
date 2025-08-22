@@ -50,13 +50,13 @@ const NgoRegistrationstep4 = () => {
   const router = useRouter();
 
   const onSubmit = async (data: step4Type) => {
+    console.log("Inside onSubmit");
     setData4(data);
     const url = await uploadImgToCloud({
       bucket: "ecomeal",
       resizedURI: data.verificationDocument!,
       folder: "verificationDocument",
     });
-
     const ngoData = {
       ...data1,
       ...data2,

@@ -1,8 +1,4 @@
-import {
-  InputBox,
-  PoppinsText,
-  CustomPicker as CategoryPicker,
-} from "@/src/components";
+import { CustomSelect, InputBox, PoppinsText } from "@/src/components";
 import { useAuth } from "@/src/core/auth/AuthProvider";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
 import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
@@ -28,7 +24,6 @@ const NgoRegistrationStep3 = () => {
       foodTypesAccepted: ["other"],
       servingCapacity: 50,
       preferredPickupTime: "8pm",
-      nextPickupTime: "8pm",
     },
   });
 
@@ -57,7 +52,7 @@ const NgoRegistrationStep3 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <CategoryPicker
+            <CustomSelect
               label="Food types Accepted"
               onValueChange={onChange}
               value={value[0]}

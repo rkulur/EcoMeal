@@ -16,10 +16,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ecomealLogo from "../../assets/images/ecomeal_logo_v2.png";
 
 const Login = () => {
-  const { control, handleSubmit, formState } = useForm<loginType>({
+  const { control, handleSubmit } = useForm<loginType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "carehome@gmail.com",
+      email: "ngo@gmail.com",
       password: "securepassword",
     },
   });

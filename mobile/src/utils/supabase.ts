@@ -1,9 +1,7 @@
-import "react-native-url-polyfill/auto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, processLock } from "@supabase/supabase-js";
-import { resizeImages } from "./resize";
+import "react-native-url-polyfill/auto";
 import { uriToArrayBuffer } from "./uriToArrayBuffer";
-import { ImagePickerResult } from "expo-image-picker";
 
 export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL!,

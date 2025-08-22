@@ -33,6 +33,8 @@ export default function RootLayout() {
           <Stack.Screen name="register" options={{ headerShown: false }} />
           <Stack.Screen name="donor" options={{ headerShown: false }} />
           <Stack.Screen name="donor/(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="ngo" options={{ headerShown: false }} />
+          <Stack.Screen name="ngo/(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="carehome" options={{ headerShown: false }} />
           <Stack.Screen
             name="carehome/(tabs)"
