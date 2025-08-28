@@ -6,13 +6,15 @@ meta {
 
 post {
   url: http://localhost:3000/api/v1/auth/register/carehome
+  body: json
+  auth: none
 }
 
 headers {
   Content-Type: application/json
 }
 
-body {
+body:json {
   {
     "name": "Sunrise Care Home",
     "email": "carehome@example.com",
@@ -25,9 +27,13 @@ body {
       "city": "Mangalore",
       "pincode": "575001"
     },
+    "locationGeo":{
+      "type": "Point",
+      "coordinates": [0, 0]
+    },
     "pointOfContact": "Mr. Raj",
     "preferredPickupTime": "10:00 AM",
-    "numberOfResidents": 50,
+    "noOfResidents": 50,
     "foodTypeRequired": ["vegetarian"],
     "dietaryRestrictions": ["no sugar"],
     "preferredDeliveryTime": "12:00 PM",

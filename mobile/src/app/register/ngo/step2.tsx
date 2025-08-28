@@ -4,6 +4,7 @@ import {
   MapComponent,
   PoppinsText,
 } from "@/src/components";
+import MapScreen from "@/src/components/MapScreen";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
 import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep2NgoData } from "@/src/core/auth/hooks/ngo/step2Context";
@@ -47,6 +48,10 @@ const NgoRegistrationStep2 = () => {
   const [showMap, setShowMap] = useState(false);
   const [locationDetails, setLocationDetails] =
     useState<Location.LocationGeocodedAddress | null>(null);
+  const [coords, setCoords] = useState<{
+    longitude: number;
+    latitude: number;
+  } | null>(null);
 
   useEffect(() => {
     if (locationDetails) {
@@ -56,6 +61,10 @@ const NgoRegistrationStep2 = () => {
           district: locationDetails.district!,
           city: locationDetails.city!,
           pincode: locationDetails.postalCode!,
+        },
+        locationGeo: {
+          type: "Point",
+          coordinates: coords ? [coords.longitude, coords.latitude] : [0, 0],
         },
       };
       reset(data);
@@ -76,9 +85,10 @@ const NgoRegistrationStep2 = () => {
         </Pressable>
       </View>
       <BottomUpModal isVisible={showMap} setIsVisible={setShowMap}>
-        <MapComponent
+        <MapScreen
           locationDetails={locationDetails}
           setLocationDetails={setLocationDetails}
+          setCoords={setCoords}
         />
       </BottomUpModal>
       <Controller

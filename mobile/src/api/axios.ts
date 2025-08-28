@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useAuth } from "../core/auth/AuthProvider";
 import Constants from "expo-constants";
 
 export type ApiResult<T, E = Error> =

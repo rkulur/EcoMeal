@@ -11,6 +11,7 @@ const careHomeSchema = {
       "password",
       "confirmPassword",
       "location",
+      "locationGeo",
       "pointOfContact",
       "noOfResidents",
       "preferredDeliveryTime",
@@ -30,6 +31,14 @@ const careHomeSchema = {
           district: { type: "string" },
           city: { type: "string" },
           pincode: { type: "string" },
+        },
+      },
+      locationGeo: {
+        type: "object",
+        required: ["type", "coordinates"],
+        properties: {
+          type: { type: "string" },
+          coordinates: { type: "array" },
         },
       },
       pointOfContact: { type: "string" },

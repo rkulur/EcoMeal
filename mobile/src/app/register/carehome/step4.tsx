@@ -64,11 +64,9 @@ const CarehomeRegistrationstep4 = () => {
 
     const res = await registerCarehome(carehomeData);
     if (!res.ok) {
-      alert(res.error.message);
-      console.log(res.error.stack);
+      alert("Result is not ok " + JSON.stringify(res.error));
       return;
     }
-
     alert("Registration Successfull");
 
     const { token, role } = res.data;

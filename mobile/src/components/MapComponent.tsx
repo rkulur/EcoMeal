@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Alert, Platform, StyleSheet, Text, View } from "react-native";
-import MapView, { MapPressEvent, Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import { useEffect, useState } from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import MapView, { Marker, PROVIDER_DEFAULT, UrlTile } from "react-native-maps";
 import Toast from "react-native-toast-message";
 
 type MapComponentProps = {
@@ -85,11 +85,18 @@ const MapComponent = ({
   return (
     <View style={s.view}>
       <MapView
+        provider={PROVIDER_DEFAULT}
         style={s.map}
         initialRegion={region}
         onRegionChangeComplete={setRegion}
         onPress={(e) => setMarker(e.nativeEvent.coordinate)}
+        mapType="none"
       >
+        <UrlTile
+          urlTemplate="http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg"
+          maximumZ={19}
+          shouldReplaceMapContent={true}
+        />
         <Marker
           coordinate={marker}
           draggable

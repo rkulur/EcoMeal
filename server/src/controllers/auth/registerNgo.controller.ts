@@ -16,6 +16,10 @@ interface NGORegistrationBody {
     city: string;
     pincode: string;
   };
+  locationGeo: {
+    type: string;
+    coordinates: [number, number];
+  };
   preferredPickupTime: string;
   foodTypesAccepted: string[];
   servingCapacity?: number;
@@ -46,6 +50,7 @@ const registerNGO = async (
       password,
       confirmPassword,
       location,
+      locationGeo,
       preferredPickupTime,
       foodTypesAccepted,
       servingCapacity,
@@ -71,6 +76,7 @@ const registerNGO = async (
       phone,
       password: hashedPassword,
       location,
+      locationGeo,
       preferredPickupTime,
       foodTypesAccepted,
       servingCapacity,

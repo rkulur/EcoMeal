@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcryptjs";
 import CareHome from "../../models/CareHome.model";
 import { generateToken } from "../../utils/generateToken";
+import { errorResponse, successResponse } from "../../utils/responseWrapper";
 
 interface CareHomeRegistrationBody {
   name: string;
@@ -14,6 +15,10 @@ interface CareHomeRegistrationBody {
     district: string;
     city: string;
     pincode: string;
+  };
+  locationGeo: {
+    type: string;
+    coordinates: [number, number];
   };
   pointOfContact: string;
   preferredPickupTime: string;
@@ -47,6 +52,7 @@ export const registerCareHome = async (
       password,
       confirmPassword,
       location,
+      locationGeo,
       pointOfContact,
       preferredPickupTime,
       noOfResidents,
@@ -59,12 +65,12 @@ export const registerCareHome = async (
     } = request.body;
 
     if (password !== confirmPassword) {
-      return reply.code(400).send({ error: "Passwords do not match" });
+      return reply.code(400).send(errorResponse("Password doesn't match"));
     }
 
     const existingUser = await CareHome.findOne({ email });
     if (existingUser) {
-      return reply.code(400).send({ error: "Email already registered" });
+      return reply.code(400).send(errorResponse("Email already registered"));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -75,6 +81,7 @@ export const registerCareHome = async (
       phone,
       password: hashedPassword,
       location,
+      locationGeo,
       pointOfContact,
       preferredPickupTime,
       noOfResidents: noOfResidents,
@@ -89,13 +96,16 @@ export const registerCareHome = async (
 
     const token = generateToken(request.server.jwt, careHome);
 
-    return reply.code(201).send({
+    const payload = {
       _id: careHome._id,
       name: careHome.name,
       email: careHome.email,
       role: careHome.role,
       token,
-    });
+    };
+    return reply
+      .code(201)
+      .send(successResponse(payload, "Carehome registered successfully"));
   } catch (error) {
     return reply.code(500).send({
       error: error instanceof Error ? error.message : "Internal server error",

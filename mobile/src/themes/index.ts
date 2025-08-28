@@ -23,9 +23,10 @@ export const STATUS_COLORS = {
   delivered: { color: "#56C747", bg: "#EAFFE7" },
   expired: { color: "#A1893F", bg: "#FFF8E3" },
   cancelled: { color: "#D02626", bg: "#FFC1C1" },
+  available: { color: "#56C747", bg: "#EAFFE7" },
 };
 export const SPACING = {
-  page: 28,
+  page: 24,
   cardHorizontal: 22,
   cardVertical: 28,
 };

@@ -6,6 +6,7 @@ meta {
 
 post {
   url: http://localhost:3000/api/v1/auth/login
+  body: json
   auth: inherit
 }
 
@@ -13,9 +14,14 @@ headers {
   Content-Type: application/json
 }
 
-body {
+body:json {
   {
-    "email": "donor@example.com",
-    "password": "securepass"
+    "email": "ngo@gmail.com",
+    "password": "securepassword"
   }
+}
+
+script:post-response {
+  const role = res.body.payload.role
+  bru.setEnvVar(`${role}Token`,res.body.payload.token)
 }

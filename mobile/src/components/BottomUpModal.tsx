@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 import Modal from "react-native-modal";
 import PoppinsText from "./PoppinsText";
 import { BORDER_RADIUS, COLORS } from "../themes";
@@ -8,10 +8,12 @@ type BottomUpModalProps = {
   children: ReactNode;
   isVisible: boolean;
   setIsVisible: (visibility: boolean) => void;
+  style?: ViewStyle;
 };
 const BottomUpModal = ({
   children,
   isVisible,
+  style,
   setIsVisible,
 }: BottomUpModalProps) => {
   return (
@@ -25,7 +27,7 @@ const BottomUpModal = ({
       animationIn="slideInUp"
       animationOut="slideOutDown"
     >
-      <View style={s.popup}>
+      <View style={[s.popup, style]}>
         <Pressable
           style={({ pressed }) => [
             s.cancel,
@@ -76,5 +78,6 @@ const s = StyleSheet.create({
     borderTopLeftRadius: 20,
     elevation: 5,
     position: "relative",
+    backgroundColor: "white",
   },
 });

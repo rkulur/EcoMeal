@@ -47,18 +47,19 @@ export const createDonationSchema = {
         properties: {
           address: { type: "string" },
           landmark: { type: "string" },
-          coordinates: {
-            type: "object",
-            properties: {
-              lat: { type: "number" },
-              lng: { type: "number" },
-            },
-          },
         },
       },
       pickupTimePreference: {
         type: "string",
         format: "date-time",
+      },
+      locationGeo: {
+        type: "object",
+        required: ["type", "coordinates"],
+        properties: {
+          type: { type: "string" },
+          coordinates: { type: "array" },
+        },
       },
       images: {
         type: "array",

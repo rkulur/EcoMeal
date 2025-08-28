@@ -1,9 +1,5 @@
-import {
-  BottomUpModal,
-  InputBox,
-  MapComponent,
-  PoppinsText,
-} from "@/src/components";
+import { BottomUpModal, InputBox, PoppinsText } from "@/src/components";
+import MapScreen from "@/src/components/MapScreen";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
 import SelectDate from "@/src/core/donor/components/donate/SelectDate";
 import DonationStepSkeleton from "@/src/core/donor/components/donate/StepSkeleton";
@@ -32,10 +28,6 @@ const DonationStep2 = () => {
     defaultValues: {
       pickupAddress: {
         address: "",
-        coordinates: {
-          lat: 0,
-          lng: 0,
-        },
         landmark: "",
       },
       pickupTimePreference: new Date(),
@@ -63,13 +55,13 @@ const DonationStep2 = () => {
       const data = {
         pickupAddress: {
           address: locationDetails.formattedAddress!,
-          coordinates: {
-            lat: coords ? coords.latitude : 0,
-            lng: coords ? coords.longitude : 0,
-          },
           landmark: "",
         },
         pickupTimePreference: new Date(),
+        locationGeo: {
+          type: "Point",
+          coordinates: coords ? [coords.longitude, coords.latitude] : [0, 0],
+        },
       };
       reset(data);
     }
@@ -90,7 +82,7 @@ const DonationStep2 = () => {
           </Pressable>
         </View>
         <BottomUpModal isVisible={showMap} setIsVisible={setShowMap}>
-          <MapComponent
+          <MapScreen
             locationDetails={locationDetails}
             setLocationDetails={setLocationDetails}
             setCoords={setCoords}

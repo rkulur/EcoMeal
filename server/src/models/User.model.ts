@@ -12,6 +12,10 @@ export interface IUser extends Document {
     city: string;
     pincode: string;
   };
+  locationGeo: {
+    type: string;
+    coordinates: number[];
+  };
   profilePicture?: string;
   verificationDocument?: string;
   socialMedia?: {

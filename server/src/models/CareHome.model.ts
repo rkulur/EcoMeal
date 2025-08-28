@@ -15,6 +15,10 @@ export interface ICareHome extends IUser {
   dietaryRestrictions?: string[];
   preferredDeliveryTime: string;
   requestHistory: mongoose.Types.ObjectId[];
+  locationGeo: {
+    type: string;
+    coordinates: [number, number];
+  };
 }
 
 const careHomeSchema = new mongoose.Schema({
@@ -40,6 +44,17 @@ const careHomeSchema = new mongoose.Schema({
   preferredDeliveryTime: {
     type: String,
     required: true,
+  },
+  locationGeo: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
   },
   requestHistory: [
     {

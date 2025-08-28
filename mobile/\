@@ -1,0 +1,158 @@
+import { BottomUpModal, MapComponent, PoppinsText } from "@/src/components";
+import GradientButton from "@/src/components/GradientButton";
+import Status from "@/src/core/donor/components/dashboard/Status";
+import {
+  BORDER_RADIUS,
+  COLORS,
+  FONT,
+  FONT_SIZE,
+  GRADIENT_PRIMARY,
+  SPACING,
+} from "@/src/themes";
+import { Ionicons } from "@expo/vector-icons";
+import { GlyphMap } from "@expo/vector-icons/build/createIconSet";
+import { LocationGeocodedAddress } from "expo-location";
+import { useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { AvailableDonation } from "../../api/getAvailaleDonations";
+import getDonationName from "@/src/utils/getDonationName";
+import { getDaysDifferenceFromToday } from "@/src/utils/getDaysDifferenceFromToday";
+import getMinimumExpiry from "@/src/utils/getMinExpiry";
+
+type DetailsProps = {
+  text: string;
+  icon: keyof typeof Ionicons.glyphMap;
+};
+const Details = ({ text, icon }: DetailsProps) => (
+  <View style={{ flexDirection: "row", gap: 5 }}>
+    <Ionicons name={icon} size={20} color={COLORS.purple} />
+    <PoppinsText>{text}</PoppinsText>
+  </View>
+);
+
+type RequestCardProps = {
+  donation: AvailableDonation;
+};
+
+const RequestsCard = ({ donation }: RequestCardProps) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [locationDetails, setLocationDetails] =
+    useState<LocationGeocodedAddress | null>(null);
+
+  return (
+    <View style={s.container}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View>
+          <PoppinsText
+            style={{ fontFamily: FONT.SEMI_BOLD, fontSize: FONT_SIZE.xmedium }}
+          >
+            {getDonationName(donation)}
+          </PoppinsText>
+          <PoppinsText>50 meals</PoppinsText>
+        </View>
+        <View>
+          <Status status="available" />
+        </View>
+      </View>
+      <View style={{ flexDirection: "row", gap: 3, flex: 1 }}>
+        <Ionicons name="location-outline" size={20} color={COLORS.purple} />
+        <PoppinsText style={{ flexShrink: 1, flexWrap: "wrap" }}>
+          {donation.pickupAddress.address}
+        </PoppinsText>
+        <PoppinsText style={{ flex: 1 }}>
+          {(donation.distance / 1000).toFixed(2)} Km
+        </PoppinsText>
+      </View>
+      <View style={{ flexDirection: "row", gap: 5 }}>
+        <Ionicons name="time-outline" size={20} color={COLORS.purple} />
+        <PoppinsText>
+          Expires in {getMinimumExpiry(donation.foodItems)} days
+        </PoppinsText>
+      </View>
+      <Pressable onPress={() => setIsModalVisible(true)}>
+        <PoppinsText style={{ textDecorationLine: "underline" }}>
+          View Details
+        </PoppinsText>
+      </Pressable>
+      <GradientButton
+        onPress={() => null}
+        text={"Request Pickup"}
+        gradient={GRADIENT_PRIMARY}
+      />
+
+      <BottomUpModal
+        isVisible={isModalVisible}
+        setIsVisible={setIsModalVisible}
+      >
+        <View style={s.modal}>
+          <View style={{ alignItems: "center" }}>
+            <PoppinsText
+              style={{
+                fontFamily: FONT.SEMI_BOLD,
+                fontSize: FONT_SIZE.xmedium,
+              }}
+            >
+              {getDonationName(donation)}
+            </PoppinsText>
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <PoppinsText>
+                {donation.foodItems.reduce(
+                  (acc, item) => acc + item.quantity,
+                  0,
+                )}{" "}
+                Meals
+              </PoppinsText>
+              <Status status={donation.status} />
+            </View>
+          </View>
+          <Details
+            text={"Information of the food"}
+            icon={"information-circle-outline"}
+          />
+          <Details text={"Address of the donation"} icon={"location-outline"} />
+          <Details text={"Expires: Date"} icon={"calendar-clear-outline"} />
+          <Details text={"Phone number"} icon={"call-outline"} />
+          <View style={{}}>
+            <PoppinsText>Pickup Location</PoppinsText>
+            <View
+              style={{
+                borderRadius: BORDER_RADIUS,
+                height: 200,
+                overflow: "hidden",
+              }}
+            >
+              <MapComponent
+                locationDetails={locationDetails}
+                setLocationDetails={setLocationDetails}
+              />
+            </View>
+          </View>
+          <GradientButton
+            onPress={() => null}
+            text={"Request Pickup"}
+            gradient={GRADIENT_PRIMARY}
+          />
+        </View>
+      </BottomUpModal>
+    </View>
+  );
+};
+
+export default RequestsCard;
+
+const s = StyleSheet.create({
+  container: {
+    borderWidth: 1,
+    borderColor: COLORS.outlineGray,
+    borderRadius: BORDER_RADIUS,
+    paddingVertical: SPACING.cardHorizontal / 1.5,
+    paddingHorizontal: SPACING.cardVertical / 1.5,
+    gap: 10,
+  },
+  modal: {
+    paddingVertical: SPACING.cardVertical,
+    paddingHorizontal: SPACING.cardHorizontal,
+    paddingTop: SPACING.cardVertical * 2,
+    gap: 15,
+  },
+});

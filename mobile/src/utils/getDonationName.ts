@@ -1,10 +1,11 @@
+import { AvailableDonation } from "../core/ngo/api/getAvailaleDonations";
 import {
   DonationHistoryListType,
   DonationType,
 } from "../validation/donate.schema";
 
 export default function getDonationName(
-  donation: DonationType | DonationHistoryListType,
+  donation: DonationType | DonationHistoryListType | AvailableDonation,
 ) {
   const fullString = donation.foodItems.map((item) => item.name).join(", ");
 

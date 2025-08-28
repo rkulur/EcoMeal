@@ -2,10 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, StyleSheet, Text, View } from "react-native";
 import logo from "../assets/images/ecomeal_logo_v2.png";
-import { COLORS, FONT, FONT_SIZE, GRADIENT_PRIMARY, SPACING } from "../themes";
+import { useAuth } from "../core/auth/AuthProvider";
+import { FONT, FONT_SIZE, GRADIENT_PRIMARY, SPACING } from "../themes";
+import OutlineButton from "./OutlineButton";
 import PoppinsHeadText from "./PoppinsHeadText";
 
 const PageHeader = () => {
+  const { signOut } = useAuth();
   return (
     <View style={s.header}>
       <View style={s.logoView}>
@@ -23,6 +26,13 @@ const PageHeader = () => {
           </LinearGradient>
         </View>
       </View>
+      <OutlineButton
+        style={{ flex: 0.5 }}
+        onPress={() => {
+          signOut();
+        }}
+        text={"Logout"}
+      />
     </View>
   );
 };

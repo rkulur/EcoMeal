@@ -23,6 +23,10 @@ export const step2Schema = z.object({
     city: z.string().min(1, "City is required"),
     pincode: z.string().min(4, "Pincode is required"),
   }),
+  locationGeo: z.object({
+    type: z.string().default("Point").optional(),
+    coordinates: z.array(z.number()).length(2),
+  }),
 });
 
 export const step3Schema = z.object({

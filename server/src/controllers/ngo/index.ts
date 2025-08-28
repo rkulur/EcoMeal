@@ -3,6 +3,7 @@ import { errorResponse, successResponse } from "../../utils/responseWrapper";
 import { Donation, DonationDoc } from "../../models/Donation.model";
 import { ObjectId, Types } from "mongoose";
 import { FoodRequest, FoodRequestDoc } from "../../models/FoodRequest.model";
+import NGOModel from "../../models/NGO.model";
 
 const allowedStatuses = [
   "pending",
@@ -21,14 +22,59 @@ export async function getAvailableDonations(
   reply: FastifyReply,
 ) {
   try {
-    const today = new Date();
-    const donations = await Donation.find({
-      status: "pending",
-    }).populate("donor", "name email");
+    const ngoId = request.user.id;
+    const ngo = await NGOModel.findById(ngoId).lean();
+    if (!ngo || !ngo.locationGeo) {
+      return reply
+        .code(404)
+        .send(errorResponse("NGO not found or missing location data."));
+    }
+
+    const [lng, lat] = ngo.locationGeo.coordinates;
+    const donations = await Donation.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lng, lat] },
+          distanceField: "distance",
+          spherical: true,
+          maxDistance: 15000,
+        },
+      },
+      {
+        $match: { status: "pending" },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "donor",
+          foreignField: "_id",
+          as: "donorInfo",
+        },
+      },
+      {
+        $unwind: "$donorInfo",
+      },
+      {
+        $project: {
+          foodItems: 1,
+          pickupAddress: 1,
+          status: 1,
+          distance: 1,
+          "donorInfo.name": 1,
+          "donorInfo.email": 1,
+          "donorInfo.phone": 1,
+          donationCoordinates: "$locationGeo.coordinates",
+        },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
 
     return reply.code(200).send(successResponse(donations));
   } catch (err) {
-    return reply.code(500).send(errorResponse("Internal Server Error"));
+    console.error(err);
+    return reply.code(500).send(errorResponse("Internal Sheesh Error", err));
   }
 }
 

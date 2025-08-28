@@ -11,6 +11,7 @@ const ngoSchema = {
       "password",
       "confirmPassword",
       "location",
+      "locationGeo",
       "preferredPickupTime",
       "foodTypesAccepted",
       "servingCapacity",
@@ -30,6 +31,14 @@ const ngoSchema = {
           district: { type: "string" },
           city: { type: "string" },
           pincode: { type: "string" },
+        },
+      },
+      locationGeo: {
+        type: "object",
+        required: ["type", "coordinates"],
+        properties: {
+          type: { type: "string" },
+          coordinates: { type: "array" },
         },
       },
       preferredPickupTime: { type: "string" },

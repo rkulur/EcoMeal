@@ -7,6 +7,17 @@ const donationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    locationGeo: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
     foodItems: [
       {
         name: { type: String, required: true },

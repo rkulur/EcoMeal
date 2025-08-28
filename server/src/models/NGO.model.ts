@@ -10,6 +10,10 @@ export interface INGO extends IUser {
     | "gluten-free"
     | "other"
   )[];
+  locationGeo: {
+    type: string;
+    coordinates: [number, number];
+  };
   servingCapacity: number;
   nextPickupTime: string;
   donationHistory: mongoose.Types.ObjectId[];
@@ -43,6 +47,17 @@ const ngoSchema = new mongoose.Schema({
   rating: {
     type: Number,
     default: 0,
+  },
+  locationGeo: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
   },
 });
 

@@ -13,6 +13,7 @@ import * as Location from "expo-location";
 import BottomUpModal from "@/src/components/BottomUpModal";
 import MapComponent from "@/src/components/MapComponent";
 import { BORDER_RADIUS, COLORS } from "@/src/themes";
+import MapScreen from "@/src/components/MapScreen";
 
 type step2Type = z.infer<typeof step2Schema>;
 const DonorRegistrationStep2 = () => {
@@ -74,9 +75,13 @@ const DonorRegistrationStep2 = () => {
         </Pressable>
       </View>
       <BottomUpModal isVisible={showMap} setIsVisible={setShowMap}>
-        <MapComponent
-          locationDetails={locationDetails}
+        {/* <MapComponent */}
+        {/*   locationDetails={locationDetails} */}
+        {/*   setLocationDetails={setLocationDetails} */}
+        {/* /> */}
+        <MapScreen
           setLocationDetails={setLocationDetails}
+          locationDetails={locationDetails}
         />
       </BottomUpModal>
       <Controller

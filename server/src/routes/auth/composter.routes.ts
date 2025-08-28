@@ -11,6 +11,7 @@ const composterSchema = {
       "password",
       "confirmPassword",
       "location",
+      "locationGeo",
     ],
     properties: {
       name: { type: "string" },
@@ -26,6 +27,14 @@ const composterSchema = {
           district: { type: "string" },
           city: { type: "string" },
           pincode: { type: "string" },
+        },
+      },
+      locationGeo: {
+        type: "object",
+        required: ["type", "coordinates"],
+        properties: {
+          type: { type: "string" },
+          coordinates: { type: "array" },
         },
       },
       acceptedFoodTypes: {

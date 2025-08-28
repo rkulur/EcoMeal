@@ -137,7 +137,12 @@ const login = async (request: LoginRequest, reply: FastifyReply) => {
     };
     return reply
       .code(201)
-      .send(successResponse(payload, "Donor registered successfully"));
+      .send(
+        successResponse(
+          payload,
+          `${user.role.charAt(0).toUpperCase() + user.role.substring(1)} registered successfully`,
+        ),
+      );
   } catch (error) {
     reply.code(500).send({
       error: error instanceof Error ? error.message : "An error occurred",

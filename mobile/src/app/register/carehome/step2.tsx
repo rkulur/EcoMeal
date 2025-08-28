@@ -1,9 +1,5 @@
-import {
-  BottomUpModal,
-  InputBox,
-  MapComponent,
-  PoppinsText,
-} from "@/src/components";
+import { BottomUpModal, InputBox, PoppinsText } from "@/src/components";
+import MapScreen from "@/src/components/MapScreen";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
 import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep2CarehomeData } from "@/src/core/auth/hooks/carehome/step2Context";
@@ -13,8 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Controller, useForm, useFormState } from "react-hook-form";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Pressable, StyleSheet, View } from "react-native";
 import { z } from "zod";
 
 type step2Type = z.infer<typeof step2Schema>;
@@ -47,6 +43,10 @@ const CarehomeRegistrationStep2 = () => {
   const [showMap, setShowMap] = useState(false);
   const [locationDetails, setLocationDetails] =
     useState<Location.LocationGeocodedAddress | null>(null);
+  const [coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   useEffect(() => {
     if (locationDetails) {
@@ -56,6 +56,10 @@ const CarehomeRegistrationStep2 = () => {
           district: locationDetails.district!,
           city: locationDetails.city!,
           pincode: locationDetails.postalCode!,
+        },
+        locationGeo: {
+          type: "Point",
+          coordinates: coords ? [coords.longitude, coords.latitude] : [0, 0],
         },
       };
       reset(data);
@@ -76,9 +80,10 @@ const CarehomeRegistrationStep2 = () => {
         </Pressable>
       </View>
       <BottomUpModal isVisible={showMap} setIsVisible={setShowMap}>
-        <MapComponent
+        <MapScreen
           locationDetails={locationDetails}
           setLocationDetails={setLocationDetails}
+          setCoords={setCoords}
         />
       </BottomUpModal>
       <Controller
