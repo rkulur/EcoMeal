@@ -1,11 +1,13 @@
 meta {
   name: Assign Donation to Care Home
   type: http
-  seq: 23
+  seq: 1
 }
 
 post {
   url: {{baseUrl}}/ngo/assign-donation/662e123456abcdef98765432
+  body: json
+  auth: none
 }
 
 headers {
@@ -13,7 +15,7 @@ headers {
   Authorization: Bearer {{donorToken}}
 }
 
-body {
+body:json {
   {
     "careHomeId": "665e123456abcdef98765499",
     "requestId": "667e987654abcdef12345670"

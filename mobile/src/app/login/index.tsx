@@ -6,29 +6,34 @@ import PoppinsText from "@/src/components/PoppinsText";
 import PrimaryButton from "@/src/components/PrimaryGradient";
 import { useAuth } from "@/src/core/auth/AuthProvider";
 import login from "@/src/core/auth/api/login";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
 import { loginSchema, loginType } from "@/src/validation/login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, RelativePathString } from "expo-router";
-import { Controller, useForm } from "react-hook-form";
-import { Image, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Image, SafeAreaView, StyleSheet, View } from "react-native";
 import ecomealLogo from "../../assets/images/ecomeal_logo_v2.png";
+import SimpleAlertModal from "@/src/components/SimpleAlertModal";
+import { useForm, Controller } from "react-hook-form";
 
 const Login = () => {
   const { control, handleSubmit } = useForm<loginType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "ngo@gmail.com",
+      email: "carehome@gmail.com",
       password: "securepassword",
     },
   });
   const { signIn } = useAuth();
+  const { showModal } = useAlertModal();
   const onSumbit = async (submitData: loginType) => {
     const res = await login(submitData);
     if (!res.ok) {
-      alert(res.error.message);
-      console.log(JSON.stringify(res.error));
+      showModal(
+        "Ooops!",
+        res.error.message ?? "Something went wrong! Please try again",
+      );
+      console.log(res.error);
       return;
     }
     const { token, role } = res.data;
@@ -36,79 +41,81 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.view]}>
-      <View>
-        <View style={{ alignItems: "center" }}>
-          <Image source={ecomealLogo} style={styles.logo} />
-        </View>
+    <>
+      <SafeAreaView style={[styles.view]}>
         <View>
-          <PoppinsHeadText style={styles.heading}>
-            Welcome to EcoMeal
-          </PoppinsHeadText>
-          <PoppinsText style={styles.subheading}>
-            A platform connecting donors, NGOs, carehomes and composters to make
-            difference together
-          </PoppinsText>
+          <View style={{ alignItems: "center" }}>
+            <Image source={ecomealLogo} style={styles.logo} />
+          </View>
+          <View>
+            <PoppinsHeadText style={styles.heading}>
+              Welcome to EcoMeal
+            </PoppinsHeadText>
+            <PoppinsText style={styles.subheading}>
+              A platform connecting donors, NGOs, carehomes and composters to
+              make difference together
+            </PoppinsText>
+          </View>
         </View>
-      </View>
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { value, onChange } }) => (
-          <InputBox
-            label="Email"
-            keyboardType="email-address"
-            value={value}
-            onChangeText={onChange}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { value, onChange } }) => (
-          <InputBox
-            label="Password"
-            onChangeText={onChange}
-            keyboardType="visible-password"
-            value={value}
-          />
-        )}
-      />
-      <PrimaryButton
-        text="Login"
-        style={{
-          padding: 16,
-          alignItems: "center",
-          borderRadius: BORDER_RADIUS,
-        }}
-        onPress={handleSubmit(onSumbit, (err) => console.log(err))}
-      />
-      <View style={styles.division}>
-        <Line />
-        <PoppinsText>or</PoppinsText>
-        <Line />
-      </View>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 8,
-          justifyContent: "center",
-        }}
-      >
-        <PoppinsText>Don't have an account?</PoppinsText>
-        <Link
-          href={"/register" as RelativePathString}
-          style={{ fontFamily: FONT.BOLD }}
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { value, onChange } }) => (
+            <InputBox
+              label="Email"
+              keyboardType="email-address"
+              value={value}
+              onChangeText={onChange}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { value, onChange } }) => (
+            <InputBox
+              label="Password"
+              onChangeText={onChange}
+              keyboardType="visible-password"
+              value={value}
+            />
+          )}
+        />
+        <PrimaryButton
+          text="Login"
+          style={{
+            padding: 16,
+            alignItems: "center",
+            borderRadius: BORDER_RADIUS,
+          }}
+          onPress={handleSubmit(onSumbit, (err) => console.log(err))}
+        />
+        <View style={styles.division}>
+          <Line />
+          <PoppinsText>or</PoppinsText>
+          <Line />
+        </View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 8,
+            justifyContent: "center",
+          }}
         >
-          <GradientText
-            text="Register"
-            style={{ textDecorationLine: "underline" }}
-          />
-        </Link>
-      </View>
-    </SafeAreaView>
+          <PoppinsText>Don't have an account?</PoppinsText>
+          <Link
+            href={"/register" as RelativePathString}
+            style={{ fontFamily: FONT.BOLD }}
+          >
+            <GradientText
+              text="Register"
+              style={{ textDecorationLine: "underline" }}
+            />
+          </Link>
+        </View>
+      </SafeAreaView>
+    </>
   );
 };
 

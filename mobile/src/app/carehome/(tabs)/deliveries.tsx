@@ -2,13 +2,10 @@ import { PoppinsHeadText } from "@/src/components";
 import PageHeader from "@/src/components/PageHeader";
 import DisplayDeliveries from "@/src/core/carehome/components/DisplayDeliveries";
 import FilterTabs from "@/src/core/donor/components/FilterTabs";
-import HistoryCard from "@/src/core/donor/components/history/HistoryCard";
 import SearchBar from "@/src/core/donor/components/history/SearchBar";
-import { COLORS, HEIGHT, SPACING } from "@/src/themes";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
-import { useRouter } from "expo-router";
+import { HEIGHT, SPACING } from "@/src/themes";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Deliveries = () => {
@@ -38,7 +35,7 @@ const Deliveries = () => {
             currFilter={currFilter}
             setCurrFilter={setCurrFilter}
           />
-          <DisplayDeliveries />
+          <DisplayDeliveries filter={currFilter} />
         </View>
       </ScrollView>
     </SafeAreaView>

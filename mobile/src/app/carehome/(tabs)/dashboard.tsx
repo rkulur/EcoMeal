@@ -1,35 +1,170 @@
+import { PoppinsText } from "@/src/components";
 import DashboardCard from "@/src/components/DashboardCard";
+import GradientButton from "@/src/components/GradientButton";
+import OutlineButton from "@/src/components/OutlineButton";
 import PageHeader from "@/src/components/PageHeader";
 import Welcome from "@/src/components/Welcome";
+import getIncomingDonations from "@/src/core/carehome/api/getIncomingDonations";
+import getCarehomeDetails from "@/src/core/carehome/api/getPersonalDetails";
 import ImpactReports from "@/src/core/carehome/components/ImpactReports";
 import IncomingFoodCard from "@/src/core/carehome/components/IncomingFoodCard";
-import { HEIGHT, SPACING } from "@/src/themes";
-import { useEffect } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import AvailableDonationCard from "@/src/core/ngo/components/dashboard/AvailableDonationCard";
+import {
+  BORDER_RADIUS,
+  COLORS,
+  GRADIENT_PRIMARY,
+  HEIGHT,
+  SPACING,
+} from "@/src/themes";
+import { PersonalDetails } from "@/src/types/carehome";
+import { AvailableDonation, DonationType } from "@/src/types/donor";
+import React, { useCallback, useEffect, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Dashboard = () => {
-  useEffect(() => {});
+  const [incomingDonations, setIncomingDonations] =
+    useState<AvailableDonation[]>();
+  const [personalDetails, setPersonalDetails] = useState<PersonalDetails>();
+  const [requestedDonations, setRequestedDonations] =
+    useState<AvailableDonation[]>();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      getDonationsNearby();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  const getDonationsNearby = async () => {
+    const res = await getIncomingDonations();
+    if (!res.ok) {
+      alert(res.message);
+      console.log(res.error);
+      return;
+    }
+    setIncomingDonations(res.data);
+  };
+
+  const getPersonalDetails = async () => {
+    const res = await getCarehomeDetails();
+    if (!res.ok) {
+      alert(res.message);
+      console.log(res.error);
+      return;
+    }
+    setPersonalDetails(res.data);
+  };
+
+  useEffect(() => {
+    getDonationsNearby();
+    getPersonalDetails();
+  }, []);
+
   return (
     <SafeAreaView style={{ backgroundColor: "white" }}>
       <PageHeader />
       <ScrollView
         style={s.container}
         contentContainerStyle={{ paddingBottom: HEIGHT.tabBar + SPACING.page }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View style={s.subcontainer}>
-          <Welcome username={"Carehome"} />
+          <Welcome username={personalDetails?.name ?? "Carehome"} />
           <DashboardCard
-            heading={"Incoming Food Deliveries"}
-            subheading={"Track food in transit & expected arrival"}
+            heading={"Donations Nearby"}
+            subheading={"Explore local donations you can request"}
           >
-            <IncomingFoodCard />
+            <View>
+              {incomingDonations?.map((donation, idx) => (
+                <AvailableDonationCard key={idx} donation={donation}>
+                  <View style={{ flexDirection: "row", gap: 10 }}>
+                    <OutlineButton onPress={() => null} text={"View Details"} />
+                    <GradientButton
+                      onPress={() => null}
+                      text={"Request"}
+                      style={{ flex: 1 }}
+                      gradient={GRADIENT_PRIMARY}
+                    />
+                  </View>
+                </AvailableDonationCard>
+              ))}
+
+              {!incomingDonations ||
+                (!incomingDonations.length && (
+                  <View
+                    style={{
+                      gap: 10,
+                      padding: 20,
+                      paddingVertical: 80,
+                      borderRadius: BORDER_RADIUS,
+                      borderColor: COLORS.outlineGray,
+                      borderWidth: 1,
+                    }}
+                  >
+                    <PoppinsText
+                      style={{ textAlign: "center", color: COLORS.outlineGray }}
+                    >
+                      No Incoming Deliveries
+                    </PoppinsText>
+                  </View>
+                ))}
+            </View>
+          </DashboardCard>
+
+          <DashboardCard
+            heading={"Requested Donations"}
+            subheading={"Track the status of your requested donations"}
+          >
+            <View>
+              {incomingDonations?.map((donation, idx) => (
+                <AvailableDonationCard key={idx} donation={donation}>
+                  <View style={{ flexDirection: "row", gap: 10 }}>
+                    <OutlineButton onPress={() => null} text={"View Details"} />
+                    <GradientButton
+                      onPress={() => null}
+                      text={"Request"}
+                      style={{ flex: 1 }}
+                      gradient={GRADIENT_PRIMARY}
+                    />
+                  </View>
+                </AvailableDonationCard>
+              ))}
+
+              {!incomingDonations ||
+                (!incomingDonations.length && (
+                  <View
+                    style={{
+                      gap: 10,
+                      padding: 20,
+                      paddingVertical: 80,
+                      borderRadius: BORDER_RADIUS,
+                      borderColor: COLORS.outlineGray,
+                      borderWidth: 1,
+                    }}
+                  >
+                    <PoppinsText
+                      style={{ textAlign: "center", color: COLORS.outlineGray }}
+                    >
+                      No Incoming Deliveries
+                    </PoppinsText>
+                  </View>
+                ))}
+            </View>
           </DashboardCard>
           <DashboardCard
             heading={"Impact Reports"}
             subheading={"Food received & people served"}
           >
-            <ImpactReports />
+            <ImpactReports totalMealsServed={0} foodReceived={0} />
           </DashboardCard>
         </View>
       </ScrollView>

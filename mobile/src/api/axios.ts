@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Constants from "expo-constants";
 
 export type ApiResult<T, E = Error> =
-  | { ok: true; data: T }
-  | { ok: false; error: E };
+  | { ok: true; data: T; message: string }
+  | { ok: false; error: E; message: string };
 
 export type ApiResponse<T> = {
   success: boolean;

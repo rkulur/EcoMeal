@@ -1,15 +1,15 @@
 import GradientButton from "@/src/components/GradientButton";
 import PageHeader from "@/src/components/PageHeader";
+import Welcome from "@/src/components/Welcome";
 import getDonationHistory from "@/src/core/donor/api/history";
 import ActiveDonations from "@/src/core/donor/components/dashboard/ActiveDonations";
 import DonationHistory from "@/src/core/donor/components/dashboard/DonationHistory";
 import Impact from "@/src/core/donor/components/dashboard/Impact";
-import Welcome from "@/src/components/Welcome";
 import { GRADIENT_SECONDARY, HEIGHT, SPACING } from "@/src/themes";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
+import { DonationHistoryListType } from "@/src/types/donor";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Dashboard = () => {
@@ -23,18 +23,32 @@ const Dashboard = () => {
     ["delivered", "cancelled", "expired"].includes(donation.status),
   );
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      getDonations();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   const router = useRouter();
 
+  async function getDonations() {
+    const res = await getDonationHistory();
+    if (!res.ok) {
+      alert(JSON.stringify(res.error));
+      return;
+    }
+    console.log(JSON.stringify(res.data));
+    setDonations(res.data);
+  }
+
   useEffect(() => {
-    const getDonations = async () => {
-      const res = await getDonationHistory();
-      if (!res.ok) {
-        alert(JSON.stringify(res.error));
-        return;
-      }
-      console.log(JSON.stringify(res.data));
-      setDonations(res.data);
-    };
     getDonations();
   }, []);
   return (
@@ -43,6 +57,9 @@ const Dashboard = () => {
       <ScrollView
         style={s.container}
         contentContainerStyle={{ paddingBottom: HEIGHT.tabBar + SPACING.page }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View style={s.subcontainer}>
           <Welcome username={"Donor"}>
@@ -55,7 +72,7 @@ const Dashboard = () => {
               style={{ height: HEIGHT.button }}
             />
           </Welcome>
-          <Impact noOfDonations={8} noOfMeals={1252} noOfNgosHelped={12} />
+          <Impact noOfDonations={0} noOfMeals={0} noOfNgosHelped={0} />
           <ActiveDonations donations={activeDonations} />
           <DonationHistory donations={donationHistory} />
         </View>

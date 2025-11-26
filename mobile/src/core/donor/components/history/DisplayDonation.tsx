@@ -1,20 +1,20 @@
 import { PoppinsText } from "@/src/components";
 import { BORDER_RADIUS, COLORS, FONT_SIZE, SPACING } from "@/src/themes";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
-import { useEffect, useState } from "react";
+import { DonationHistoryListType } from "@/src/types/donor";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import getDonationHistory from "../../api/history";
 import FilterTabs from "../FilterTabs";
 import HistoryCard from "./HistoryCard";
-import { useRouter } from "expo-router";
 
-const DisplayDonation = () => {
+type DisplayDonationProps = {
+  donationHistory: DonationHistoryListType[] | null;
+};
+
+const DisplayDonation = ({ donationHistory }: DisplayDonationProps) => {
   const filterArr = ["All", "Pending", "Completed", "Expired"] as const;
   type Filter = (typeof filterArr)[number];
   const [currFilter, setCurrFilter] = useState<Filter>("All");
-  const [donationHistory, setDonationHistory] = useState<
-    DonationHistoryListType[] | null
-  >(null);
   const router = useRouter();
 
   const normalizeStatus = (
@@ -43,18 +43,6 @@ const DisplayDonation = () => {
     return donation.filter((item) => normalizeStatus(item.status) === status);
   };
 
-  useEffect(() => {
-    const getHistory = async () => {
-      const res = await getDonationHistory();
-      if (!res.ok) {
-        alert(JSON.stringify(res.error));
-        return;
-      }
-      console.log(JSON.stringify(res.data));
-      setDonationHistory(res.data);
-    };
-    getHistory();
-  }, []);
   return (
     <View style={{ gap: 10 }}>
       <FilterTabs

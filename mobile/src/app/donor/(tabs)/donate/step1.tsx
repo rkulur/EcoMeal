@@ -9,14 +9,14 @@ import {
   BORDER_RADIUS,
   COLORS,
   FONT,
-  GRADIENT_SECONDARY,
   GRADIENT_SECONDARY_REVERSED,
   SPACING,
 } from "@/src/themes";
 import { Step1Schema, step1Type } from "@/src/validation/donate.schema";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Alert, StyleSheet, View } from "react-native";
 
@@ -39,7 +39,7 @@ const DonationStep1 = () => {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "foodItems",
   });
@@ -69,6 +69,17 @@ const DonationStep1 = () => {
     setData(data);
     router.push("/donor/donate/step2");
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      replace({
+        name: "",
+        quantity: 1,
+        unit: "plates",
+        expiryDate: new Date(),
+      });
+    }, []),
+  );
 
   return (
     <DonationStepSkeleton currStep={1}>

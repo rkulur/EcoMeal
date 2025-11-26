@@ -38,6 +38,9 @@ const styles = StyleSheet.create({
   },
   invisibleText: {
     opacity: 0,
+    paddingHorizontal: 8,
   },
-  lg: {},
+  lg: {
+    width: "100%",
+  },
 });

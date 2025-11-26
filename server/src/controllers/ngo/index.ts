@@ -1,9 +1,18 @@
 import { FastifyReply, FastifyRequest } from "fastify/fastify";
-import { errorResponse, successResponse } from "../../utils/responseWrapper";
+import { Types } from "mongoose";
 import { Donation, DonationDoc } from "../../models/Donation.model";
-import { ObjectId, Types } from "mongoose";
 import { FoodRequest, FoodRequestDoc } from "../../models/FoodRequest.model";
 import NGOModel from "../../models/NGO.model";
+import { errorResponse, successResponse } from "../../utils/responseWrapper";
+
+type Status =
+  | "pending"
+  | "accepted"
+  | "assigned"
+  | "picked_up"
+  | "delivered"
+  | "expired"
+  | "cancelled";
 
 const allowedStatuses = [
   "pending",
@@ -17,7 +26,7 @@ const allowedStatuses = [
 
 type DonationStatus = (typeof allowedStatuses)[number];
 
-export async function getAvailableDonations(
+export async function getPendingDonations(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
@@ -41,7 +50,11 @@ export async function getAvailableDonations(
         },
       },
       {
-        $match: { status: "pending" },
+        $match: {
+          status: "accepted",
+          acceptedBy: new Types.ObjectId(ngoId),
+          ngoPickedUp: false,
+        },
       },
       {
         $lookup: {
@@ -51,9 +64,57 @@ export async function getAvailableDonations(
           as: "donorInfo",
         },
       },
+
+      { $unwind: "$donorInfo" },
       {
-        $unwind: "$donorInfo",
+        $lookup: {
+          from: "users",
+          localField: "requestedCarehomes.carehomeId",
+          foreignField: "_id",
+          as: "carehomeDetails",
+        },
       },
+
+      // Combine each requestedCarehome with its user details
+      {
+        $addFields: {
+          requestedCarehomes: {
+            $map: {
+              input: "$requestedCarehomes",
+              as: "req",
+              in: {
+                $mergeObjects: [
+                  "$$req",
+                  {
+                    $let: {
+                      vars: {
+                        carehome: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$carehomeDetails",
+                                as: "ch",
+                                cond: { $eq: ["$$ch._id", "$$req.carehomeId"] },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                      in: {
+                        name: "$$carehome.name",
+                        email: "$$carehome.email",
+                        phone: "$$carehome.phone",
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+
       {
         $project: {
           foodItems: 1,
@@ -64,13 +125,137 @@ export async function getAvailableDonations(
           "donorInfo.email": 1,
           "donorInfo.phone": 1,
           donationCoordinates: "$locationGeo.coordinates",
+          pickupTimePreference: 1,
+          requestedCarehomes: {
+            carehomeId: 1,
+            status: 1,
+            requestedAt: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+          },
         },
-      },
-      {
-        $limit: 10,
       },
     ]);
 
+    return reply.code(200).send(successResponse(donations));
+  } catch (err) {
+    console.error(err);
+    return reply.code(500).send(errorResponse("Internal Server Error", err));
+  }
+}
+
+export async function getAvailableDonations(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  try {
+    const ngoId = request.user.id;
+    const ngo = await NGOModel.findById(ngoId).lean();
+    if (!ngo || !ngo.locationGeo) {
+      return reply
+        .code(404)
+        .send(errorResponse("NGO not found or missing location data."));
+    }
+
+    const [lng, lat] = ngo.locationGeo.coordinates;
+
+    const donations = await Donation.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lng, lat] },
+          distanceField: "distance",
+          spherical: true,
+          maxDistance: 15000,
+        },
+      },
+      {
+        $match: { status: "pending" },
+      },
+      // Get donor info
+      {
+        $lookup: {
+          from: "users",
+          localField: "donor",
+          foreignField: "_id",
+          as: "donorInfo",
+        },
+      },
+      { $unwind: "$donorInfo" },
+
+      // Get all carehome user details in requestedCarehomes
+      {
+        $lookup: {
+          from: "users",
+          localField: "requestedCarehomes.carehomeId",
+          foreignField: "_id",
+          as: "carehomeDetails",
+        },
+      },
+
+      // Combine each requestedCarehome with its user details
+      {
+        $addFields: {
+          requestedCarehomes: {
+            $map: {
+              input: "$requestedCarehomes",
+              as: "req",
+              in: {
+                $mergeObjects: [
+                  "$$req",
+                  {
+                    $let: {
+                      vars: {
+                        carehome: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$carehomeDetails",
+                                as: "ch",
+                                cond: { $eq: ["$$ch._id", "$$req.carehomeId"] },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                      in: {
+                        name: "$$carehome.name",
+                        email: "$$carehome.email",
+                        phone: "$$carehome.phone",
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+
+      // Cleanup fields
+      {
+        $project: {
+          foodItems: 1,
+          pickupAddress: 1,
+          status: 1,
+          distance: 1,
+          donationCoordinates: "$locationGeo.coordinates",
+          "donorInfo.name": 1,
+          "donorInfo.email": 1,
+          "donorInfo.phone": 1,
+          requestedCarehomes: {
+            carehomeId: 1,
+            status: 1,
+            requestedAt: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+          },
+        },
+      },
+      { $limit: 10 },
+    ]);
     return reply.code(200).send(successResponse(donations));
   } catch (err) {
     console.error(err);
@@ -83,7 +268,7 @@ export async function claimDonation(
   reply: FastifyReply,
 ) {
   const { donationId } = request.params;
-  const ngoId = request.user?.id;
+  const ngoId = request.user.id;
 
   try {
     const donation = (await Donation.findOne({
@@ -119,54 +304,31 @@ export async function getSuggestedCareHomes(
 export async function assignDonation(
   request: FastifyRequest<{
     Params: { donationId: string };
-    Body: { careHomeId: string; requestId: string };
+    Body: { careHomeId: string };
   }>,
   reply: FastifyReply,
 ) {
-  const { careHomeId, requestId } = request.body;
+  const { careHomeId } = request.body;
   const { donationId } = request.params;
-  const ngoId = request.user?.id;
 
   try {
-    const foodRequest = (await FoodRequest.findOne({
-      _id: requestId,
-      requester: new Types.ObjectId(careHomeId),
-      status: "pending",
-    })) as FoodRequestDoc;
-
     const donation = (await Donation.findOne({
       _id: donationId,
       isDeleted: false,
     })) as DonationDoc;
 
-    if (!foodRequest) {
-      return reply
-        .code(404)
-        .send(
-          errorResponse("No pending food request found for this care home"),
-        );
-    }
-
     if (!donation) {
       return reply.code(404).send(errorResponse("Donation not found"));
     }
 
-    foodRequest.assignedNgo = new Types.ObjectId(ngoId.toString());
-    foodRequest.assignedDonation = new Types.ObjectId(donationId.toString());
-    foodRequest.status = "pending";
-
     donation.assignedCareHome = new Types.ObjectId(careHomeId.toString());
-    donation.assignedRequest = new Types.ObjectId(requestId.toString());
-
-    await foodRequest.save();
+    donation.status = "assigned";
+    donation.save();
 
     return reply
       .code(200)
       .send(
-        successResponse(
-          foodRequest,
-          "Donation assigned to CareHome successfully",
-        ),
+        successResponse(donation, "Donation assigned to CareHome successfully"),
       );
   } catch (err) {
     return reply.code(500).send(errorResponse("Internal Server Error"));
@@ -232,5 +394,172 @@ export async function getNGOImpact(
   try {
   } catch (err) {
     return reply.code(500).send(errorResponse("Internal Server Error"));
+  }
+}
+
+export async function setDonationExpiry(
+  request: FastifyRequest<{
+    Params: { donationId: string };
+    Body: { status: string };
+  }>,
+  reply: FastifyReply,
+) {
+  try {
+    const { donationId } = request.params;
+
+    const donation = (await Donation.findById(donationId)) as DonationDoc;
+    if (!donation) {
+      return reply.code(403).send(errorResponse("Donation not found"));
+    }
+    donation.status = "expired";
+    await donation.save();
+    return reply.code(200).send(successResponse(donation, "Status updated"));
+  } catch (err) {
+    return reply.code(500).send(errorResponse("Internal Server Error"));
+  }
+}
+
+export async function markAsPickedUp(
+  request: FastifyRequest<{
+    Params: { donationId: string };
+  }>,
+  reply: FastifyReply,
+) {
+  try {
+    const { donationId } = request.params;
+
+    const donation = (await Donation.findById(donationId)) as DonationDoc;
+    if (!donation) {
+      return reply.code(403).send(errorResponse("Donation not found"));
+    }
+
+    if (donation.donorConfirmedPickup) {
+      donation.status = "picked_up";
+    }
+    donation.ngoPickedUp = true;
+    await donation.save();
+    return reply
+      .code(200)
+      .send(successResponse(donation, "Donation marked as picked up!"));
+  } catch (err) {
+    return reply.code(500).send(errorResponse("Internal Server Error"));
+  }
+}
+
+export async function getPickedUpDonations(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  try {
+    const ngoId = request.user.id;
+    const ngo = await NGOModel.findById(ngoId).lean();
+    if (!ngo || !ngo.locationGeo) {
+      return reply
+        .code(404)
+        .send(errorResponse("NGO not found or missing location data."));
+    }
+
+    const [lng, lat] = ngo.locationGeo.coordinates;
+    const pickedUpDonations = await Donation.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lng, lat] },
+          distanceField: "distance",
+          spherical: true,
+          maxDistance: 15000,
+        },
+      },
+      {
+        $match: {
+          status: "picked_up",
+          acceptedBy: new Types.ObjectId(ngoId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "donor",
+          foreignField: "_id",
+          as: "donorInfo",
+        },
+      },
+
+      { $unwind: "$donorInfo" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "requestedCarehomes.carehomeId",
+          foreignField: "_id",
+          as: "carehomeDetails",
+        },
+      },
+
+      // Combine each requestedCarehome with its user details
+      {
+        $addFields: {
+          requestedCarehomes: {
+            $map: {
+              input: "$requestedCarehomes",
+              as: "req",
+              in: {
+                $mergeObjects: [
+                  "$$req",
+                  {
+                    $let: {
+                      vars: {
+                        carehome: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$carehomeDetails",
+                                as: "ch",
+                                cond: { $eq: ["$$ch._id", "$$req.carehomeId"] },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                      in: {
+                        name: "$$carehome.name",
+                        email: "$$carehome.email",
+                        phone: "$$carehome.phone",
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          foodItems: 1,
+          pickupAddress: 1,
+          status: 1,
+          distance: 1,
+          "donorInfo.name": 1,
+          "donorInfo.email": 1,
+          "donorInfo.phone": 1,
+          donationCoordinates: "$locationGeo.coordinates",
+          pickupTimePreference: 1,
+          requestedCarehomes: {
+            carehomeId: 1,
+            status: 1,
+            requestedAt: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+          },
+        },
+      },
+    ]);
+
+    return reply.code(200).send(successResponse(pickedUpDonations));
+  } catch (err) {
+    console.error(err);
+    return reply.code(500).send(errorResponse("Internal Sheesh Error", err));
   }
 }

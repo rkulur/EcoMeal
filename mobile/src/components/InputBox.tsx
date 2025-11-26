@@ -7,6 +7,7 @@ interface InputBoxProps extends TextInputProps {
   label: string;
   onChangeText: (text: string) => void;
   value?: string;
+  canEdit?: boolean;
 }
 const InputBox = ({
   label,
@@ -14,6 +15,7 @@ const InputBox = ({
   onChangeText,
   style,
   value,
+  canEdit,
 }: InputBoxProps) => {
   const [isFocus, setIsFocus] = useState(false);
   return (
@@ -23,6 +25,7 @@ const InputBox = ({
         value={value}
         keyboardType={keyboardType}
         onChangeText={onChangeText}
+        editable={canEdit}
         style={[
           styles.input,
           style,

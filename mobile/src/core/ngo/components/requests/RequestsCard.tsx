@@ -1,8 +1,11 @@
 import { BottomUpModal, PoppinsText } from "@/src/components";
+import DefaultProfile from "@/src/components/DefaultProfile";
+import CarehomeDropdown from "@/src/components/Dropdown";
 import GradientButton from "@/src/components/GradientButton";
 import MapScreen from "@/src/components/MapScreen";
 import OutlineButton from "@/src/components/OutlineButton";
 import Status from "@/src/core/donor/components/dashboard/Status";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import {
   BORDER_RADIUS,
   COLORS,
@@ -11,14 +14,14 @@ import {
   GRADIENT_PRIMARY,
   SPACING,
 } from "@/src/themes";
+import { FoodItem, RequestedCarehome } from "@/src/types/donor";
+import { AvailableDonation } from "@/src/types/donor";
 import getDonationName from "@/src/utils/getDonationName";
 import getMinimumExpiry from "@/src/utils/getMinExpiry";
-import { FoodItem } from "@/src/validation/donate.schema";
 import { Ionicons } from "@expo/vector-icons";
 import { LocationGeocodedAddress } from "expo-location";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { AvailableDonation } from "../../api/getAvailaleDonations";
 
 type DetailsProps = {
   text: string;
@@ -33,14 +36,59 @@ const Details = ({ text, icon }: DetailsProps) => (
 
 type RequestCardProps = {
   donation: AvailableDonation;
+  children?: ReactNode;
 };
 
 type FoodItemsType = (Omit<FoodItem, "expiryDate"> & { expiryDate?: string })[];
 
-const RequestsCard = ({ donation }: RequestCardProps) => {
+const CarehomeDetails = ({
+  requestedCarehomes,
+}: {
+  requestedCarehomes: RequestedCarehome[] | undefined;
+}) => {
+  if (!requestedCarehomes || !requestedCarehomes.length) {
+    return (
+      <View>
+        <PoppinsText>Requested Carehomes: </PoppinsText>
+        <View
+          style={{
+            gap: 10,
+            padding: 20,
+            paddingVertical: 30,
+            borderRadius: BORDER_RADIUS,
+            borderColor: COLORS.outlineGray,
+            borderWidth: 1,
+          }}
+        >
+          <PoppinsText
+            style={{ textAlign: "center", color: COLORS.outlineGray }}
+          >
+            No Carehomes Requested
+          </PoppinsText>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View>
+      <PoppinsText>Requested Carehomes: </PoppinsText>
+      {requestedCarehomes.map((carehome, idx) => (
+        <View key={idx} style={{ flexDirection: "row", gap: 10 }}>
+          <PoppinsText>{idx + 1}. </PoppinsText>
+          <PoppinsText>{carehome.name}</PoppinsText>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+const RequestCard = ({ donation, children }: RequestCardProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [locationDetails, setLocationDetails] =
     useState<LocationGeocodedAddress | null>(null);
+
+  const { showModal } = useAlertModal();
 
   const getInformationOfTheFood = (foodItems: FoodItemsType): string => {
     let str = "";
@@ -62,14 +110,11 @@ const RequestsCard = ({ donation }: RequestCardProps) => {
           <PoppinsText
             style={{ fontFamily: FONT.SEMI_BOLD, fontSize: FONT_SIZE.xmedium }}
           >
-            {getDonationName(donation)}
+            {getDonationName(donation, 25)}
           </PoppinsText>
           <PoppinsText>
             {calculateTotalMeals(donation.foodItems)} meals
           </PoppinsText>
-        </View>
-        <View>
-          <Status status="available" />
         </View>
       </View>
       <View style={{ flexDirection: "row", gap: 3, flex: 1 }}>
@@ -86,19 +131,16 @@ const RequestsCard = ({ donation }: RequestCardProps) => {
         </PoppinsText>
       </View>
       <OutlineButton
-        onPress={() => setIsModalVisible(true)}
+        onPress={() => {
+          setIsModalVisible(true);
+        }}
         text={"View Details"}
       />
-      <GradientButton
-        onPress={() => null}
-        text={"Request Pickup"}
-        gradient={GRADIENT_PRIMARY}
-      />
-
+      {children}
       <BottomUpModal
         isVisible={isModalVisible}
         setIsVisible={setIsModalVisible}
-        style={{ height: 700 }}
+        style={{ height: 800 }}
       >
         <View style={s.modal}>
           <View style={{ alignItems: "center" }}>
@@ -150,18 +192,14 @@ const RequestsCard = ({ donation }: RequestCardProps) => {
               />
             </View>
           </View>
+          <CarehomeDetails requestedCarehomes={donation.requestedCarehomes} />
         </View>
-        <GradientButton
-          onPress={() => null}
-          text={"Request Pickup"}
-          gradient={GRADIENT_PRIMARY}
-        />
       </BottomUpModal>
     </View>
   );
 };
 
-export default RequestsCard;
+export default RequestCard;
 
 const s = StyleSheet.create({
   container: {

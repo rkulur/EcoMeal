@@ -1,13 +1,15 @@
 import OutlineButton from "@/src/components/OutlineButton";
 import { BORDER_RADIUS, COLORS, SPACING } from "@/src/themes";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
 import { StyleSheet, View } from "react-native";
 import HeadingWithSubtext from "../HeadingWithSubtext";
 import DonationCard from "./DonationCard";
 import { PoppinsText } from "@/src/components";
+import { DonationHistoryListType } from "@/src/types/donor";
+
 type ActiveDonationsProps = {
   donations?: DonationHistoryListType[];
 };
+
 const ActiveDonations = ({ donations }: ActiveDonationsProps) => {
   if (!donations || donations.length === 0) {
     return (
@@ -45,7 +47,7 @@ const ActiveDonations = ({ donations }: ActiveDonationsProps) => {
           <DonationCard donation={activeDonation} key={idx} />
         ))}
       </View>
-      <OutlineButton text="View All Active Donations" onPress={() => null} />
+      {/* <OutlineButton text="View All Active Donations" onPress={() => null} /> */}
     </View>
   );
 };

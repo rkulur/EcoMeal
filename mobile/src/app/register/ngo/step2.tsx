@@ -52,13 +52,17 @@ const NgoRegistrationStep2 = () => {
     longitude: number;
     latitude: number;
   } | null>(null);
+  const [editStateField, setEditStateField] = useState(false);
+  const [editDistrictField, setEditDistrictField] = useState(false);
+  const [editCityField, setEditCityField] = useState(false);
+  const [editPincodeField, setEditPincodeField] = useState(false);
 
   useEffect(() => {
     if (locationDetails) {
       const data = {
         location: {
           state: locationDetails.region!,
-          district: locationDetails.district!,
+          district: locationDetails.subregion!,
           city: locationDetails.city!,
           pincode: locationDetails.postalCode!,
         },
@@ -68,6 +72,11 @@ const NgoRegistrationStep2 = () => {
         },
       };
       reset(data);
+
+      if (!locationDetails.region) setEditStateField(true);
+      if (!locationDetails.subregion) setEditDistrictField(true);
+      if (!locationDetails.city) setEditCityField(true);
+      if (!locationDetails.postalCode) setEditPincodeField(true);
     }
   }, [locationDetails, reset]);
   return (
@@ -95,7 +104,20 @@ const NgoRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox label={"State"} value={value} onChangeText={onChange} />
+            <Pressable
+              onPress={() => {
+                if (editStateField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"State"}
+                value={value}
+                onChangeText={onChange}
+                canEdit={editStateField}
+              />
+            </Pressable>
           );
         }}
         name={"location.state"}
@@ -107,11 +129,20 @@ const NgoRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox
-              label={"District"}
-              value={value}
-              onChangeText={onChange}
-            />
+            <Pressable
+              onPress={() => {
+                if (editDistrictField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"District"}
+                value={value}
+                onChangeText={onChange}
+                canEdit={editDistrictField}
+              />
+            </Pressable>
           );
         }}
         name={"location.district"}
@@ -123,7 +154,20 @@ const NgoRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox label={"City"} value={value} onChangeText={onChange} />
+            <Pressable
+              onPress={() => {
+                if (editCityField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"City"}
+                value={value}
+                onChangeText={onChange}
+                canEdit={editCityField}
+              />
+            </Pressable>
           );
         }}
         name={"location.city"}
@@ -135,12 +179,21 @@ const NgoRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox
-              label={"Pincode"}
-              value={value}
-              onChangeText={onChange}
-              keyboardType="name-phone-pad"
-            />
+            <Pressable
+              onPress={() => {
+                if (editPincodeField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"Pincode"}
+                value={value}
+                onChangeText={onChange}
+                keyboardType="name-phone-pad"
+                canEdit={editPincodeField}
+              />
+            </Pressable>
           );
         }}
         name={"location.pincode"}

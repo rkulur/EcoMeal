@@ -33,7 +33,6 @@ const ComposterRegistrationStep3 = () => {
   const { data: data1 } = useStep1ComposterData();
   const { data: data2 } = useStep2ComposterData();
   const { data: data3, setData: setData3 } = useStep3ComposterData();
-  const router = useRouter();
 
   const onSubmit = async (data: step3Type) => {
     setData3(data);

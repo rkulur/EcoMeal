@@ -104,26 +104,25 @@ const googleAuth = async (request: GoogleAuthRequest, reply: FastifyReply) => {
   }
 };
 
-// Login user
 const login = async (request: LoginRequest, reply: FastifyReply) => {
   try {
     const { email, password } = request.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return reply.code(401).send({ error: "Invalid credentials u" });
+      return reply.code(401).send({ message: "Invalid email or password" });
     }
 
     if (user.isGoogleAuth) {
-      return reply.code(401).send({ error: "Please use Google login" });
+      return reply.code(401).send({ message: "Please login using Google" });
     }
 
     if (!user.password) {
-      return reply.code(401).send({ error: "Invalid credentials p" });
+      return reply.code(401).send({ message: "Invalid email or password" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return reply.code(401).send({ error: "Invalid credentials mm", isMatch });
+      return reply.code(401).send({ message: "Invalid email or password" });
     }
 
     const token = generateToken(request.server.jwt, user);

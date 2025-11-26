@@ -29,12 +29,6 @@ const DonationStepSkeleton = ({
           <DonationStepsIndicator
             currStep={currStep}
             stepTitle={["Food Details", "Location", "Images", "Confirm"]}
-            stepPaths={[
-              "/donor/donate/step1",
-              "/donor/donate/step2",
-              "/donor/donate/step3",
-              "/donor/donate/step4",
-            ]}
           />
           <ProgressBar progress={25 * currStep} />
           {children}

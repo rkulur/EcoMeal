@@ -5,6 +5,7 @@ import {
   markComposted,
   getCompostHistory,
   getComposterImpact,
+  getPersonalDetails,
 } from "../../controllers/composter";
 
 export async function composterRoutes(fastify: FastifyInstance) {
@@ -36,5 +37,11 @@ export async function composterRoutes(fastify: FastifyInstance) {
     "/impact",
     { preHandler: [fastify.authenticate, fastify.isComposter] },
     getComposterImpact,
+  );
+
+  fastify.get(
+    "/personal-details",
+    { preHandler: [fastify.authenticate, fastify.isComposter] },
+    getPersonalDetails,
   );
 }

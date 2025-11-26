@@ -1,16 +1,9 @@
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
-import {
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { Image, StyleSheet, View } from "react-native";
 import { COLORS } from "../themes";
-import { Href } from "expo-router";
 
 type DefaultProfileProps = {
-  src?: Href | null;
+  src?: string | null;
   height?: number;
   width?: number;
 };
@@ -19,7 +12,7 @@ const DefaultProfile = ({ src = null, height, width }: DefaultProfileProps) => {
     <View>
       {src ? (
         <Image
-          source={src as ImageSourcePropType}
+          source={{ uri: src }}
           style={{
             height: height ?? 50,
             width: width ?? 50,

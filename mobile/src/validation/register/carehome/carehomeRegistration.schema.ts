@@ -9,7 +9,9 @@ export const step1Schema = z
     confirmPassword: z
       .string()
       .min(6, "Password must be at least 6 characters"),
-    phone: z.string().min(7, "Phone is required"),
+    phone: z.coerce.number().refine((val) => val.toString().length === 10, {
+      message: "Phone number should be exactly 10 digits",
+    }),
     role: z.enum(["donor", "ngo", "carehome", "composter", "admin"]),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -42,18 +44,6 @@ export const step3Schema = z.object({
 
 export const step4Schema = z.object({
   profilePicture: z.string().optional(),
-  verificationDocument: z
-    .string()
-    .url("Verification document must be a valid URL")
-    .min(1, "Verification document is required"),
-  socialMedia: z
-    .object({
-      website: z.string().url("Invalid URL").optional(),
-      facebook: z.string().url("Invalid URL").optional(),
-      instagram: z.string().url("Invalid URL").optional(),
-      twitter: z.string().url("Invalid URL").optional(),
-    })
-    .optional(),
 });
 
 export const carehomeRegistrationSchema = step1Schema

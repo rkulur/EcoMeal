@@ -1,4 +1,5 @@
 import { ImageInput, InputBox, PoppinsText } from "@/src/components";
+import SimpleAlertModal from "@/src/components/SimpleAlertModal";
 import { registerCarehome } from "@/src/core/auth/api/register";
 import { useAuth } from "@/src/core/auth/AuthProvider";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
@@ -9,6 +10,8 @@ import {
   useStep3CarehomeData,
   useStep4CarehomeData,
 } from "@/src/core/auth/hooks/carehome";
+import { Role } from "@/src/core/auth/types";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import { BORDER_RADIUS, COLORS } from "@/src/themes";
 import { uploadImgToCloud } from "@/src/utils/supabase";
 import {
@@ -16,6 +19,8 @@ import {
   step4Schema,
 } from "@/src/validation/register/carehome/carehomeRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { z } from "zod";
@@ -30,16 +35,14 @@ const CarehomeRegistrationstep4 = () => {
   } = useForm<step4Type>({
     resolver: zodResolver(step4Schema),
     defaultValues: {
-      verificationDocument: "",
       profilePicture: "",
-      socialMedia: {
-        website: "https://www.orphanhelp.com",
-        facebook: "https://www.facebook.com/orphanhelp",
-        instagram: "https://www.instagram.com/orphanhelp",
-        twitter: "https://www.twitter.com/orphanhelp",
-      },
     },
   });
+
+  const { isVisible, showModal } = useAlertModal();
+  const [regData, setRegData] = useState<{ token: string; role: Role } | null>(
+    null,
+  );
 
   const { data: data1 } = useStep1CarehomeData();
   const { data: data2 } = useStep2CarehomeData();
@@ -48,128 +51,73 @@ const CarehomeRegistrationstep4 = () => {
 
   const onSubmit = async (data: step4Type) => {
     setData4(data);
-    const url = await uploadImgToCloud({
-      bucket: "ecomeal",
-      resizedURI: data.verificationDocument!,
-      folder: "verificationDocument",
-    });
+    let url;
+    if (data.profilePicture) {
+      url = await uploadImgToCloud({
+        bucket: "ecomeal",
+        resizedURI: data.profilePicture!,
+        folder: "profilePicture",
+      });
+    }
 
     const carehomeData = {
       ...data1,
       ...data2,
       ...data3,
       ...data4,
-      verificationDocument: url,
+      profilePicture: url ?? "",
     } as CarehomeRegistrationType;
 
     const res = await registerCarehome(carehomeData);
     if (!res.ok) {
-      alert("Result is not ok " + JSON.stringify(res.error));
+      if (isAxiosError(res.error)) {
+        showModal("Something went wrong!", res.message);
+      }
+      showModal("Something went wrong!", res.message);
       return;
     }
-    alert("Registration Successfull");
-
     const { token, role } = res.data;
-    signIn(token, role);
+    setRegData({ token, role });
+    showModal(
+      "Registration Successful",
+      "Your Care Home has been successfully registered. You can now log in to start receiving donations and managing requests!",
+    );
   };
+
+  useEffect(() => {
+    if (regData && !isVisible) {
+      signIn(regData.token, regData.role);
+    }
+  }, [regData, isVisible]);
   return (
-    <RegistrationStepSkeleton
-      totalSteps={4}
-      currStep={4}
-      heading="Verify and Finalize"
-    >
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <View style={{ display: "flex", gap: 8 }}>
-              <PoppinsText>Add Verification Document</PoppinsText>
-              <ImageInput value={value} onChange={onChange} />
-            </View>
-          );
-        }}
-        name={"verificationDocument"}
-      />
-      {errors.verificationDocument && (
-        <PoppinsText>{errors.verificationDocument.message}</PoppinsText>
-      )}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <View style={{ display: "flex", gap: 8 }}>
-              <PoppinsText>Add Profile Picture</PoppinsText>
-              <ImageInput value={value} onChange={onChange} />
-            </View>
-          );
-        }}
-        name={"profilePicture"}
-      />
-      {/* {errors.verificationDocument && ( */}
-      {/*   <PoppinsText>{errors.verificationDocument.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox label={"Website"} value={value} onChangeText={onChange} />
-          );
-        }}
-        name={"socialMedia.website"}
-      />
-      {/* {errors.socialMedia?.website && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.website.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox
-              label={"Facebook"}
-              value={value}
-              onChangeText={onChange}
-            />
-          );
-        }}
-        name={"socialMedia.facebook"}
-      />
-      {/* {errors.socialMedia?.facebook && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.facebook.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox
-              label={"Instagram"}
-              value={value}
-              onChangeText={onChange}
-            />
-          );
-        }}
-        name={"socialMedia.instagram"}
-      />
-      {/* {errors.socialMedia?.instagram && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.instagram.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox label={"Twitter"} value={value} onChangeText={onChange} />
-          );
-        }}
-        name={"socialMedia.twitter"}
-      />
-      {/* {errors.socialMedia?.twitter && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.twitter.message}</PoppinsText> */}
-      {/* )} */}
-      <StepButtons
-        totalSteps={3}
-        currStep={3}
-        onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
-      />
-    </RegistrationStepSkeleton>
+    <>
+      <RegistrationStepSkeleton
+        totalSteps={4}
+        currStep={4}
+        heading="Verify and Finalize"
+      >
+        <Controller
+          control={control}
+          render={function ({ field: { value, onChange } }) {
+            return (
+              <View style={{ display: "flex", gap: 8 }}>
+                <PoppinsText>Add Profile Picture</PoppinsText>
+                <ImageInput value={value} onChange={onChange} />
+              </View>
+            );
+          }}
+          name={"profilePicture"}
+        />
+        {errors.profilePicture && (
+          <PoppinsText>{errors.profilePicture.message}</PoppinsText>
+        )}
+        <StepButtons
+          totalSteps={3}
+          currStep={3}
+          onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
+        />
+      </RegistrationStepSkeleton>
+    </>
   );
 };
 

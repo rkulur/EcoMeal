@@ -1,15 +1,13 @@
-import { AvailableDonation } from "../core/ngo/api/getAvailaleDonations";
-import {
-  DonationHistoryListType,
-  DonationType,
-} from "../validation/donate.schema";
+import { DonationHistoryListType, DonationType } from "../types/donor";
+import { AvailableDonation } from "../types/donor";
 
 export default function getDonationName(
   donation: DonationType | DonationHistoryListType | AvailableDonation,
+  maxChars?: number,
 ) {
   const fullString = donation.foodItems.map((item) => item.name).join(", ");
 
-  const maxChars = 20;
+  !maxChars && (maxChars = 20);
 
   return fullString.length > maxChars
     ? fullString.slice(0, maxChars).trimEnd() + "..."

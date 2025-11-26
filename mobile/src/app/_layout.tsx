@@ -9,6 +9,8 @@ import {
 } from "@expo-google-fonts/poppins";
 import { useEffect } from "react";
 import { AxiosAuthInterceptor } from "../api/ApiInterceptor";
+import { AlertModalContextProvider } from "../hooks/AlertModalContext";
+import SimpleAlertModal from "../components/SimpleAlertModal";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,20 +29,32 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <AxiosAuthInterceptor>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="login/index" options={{ headerShown: false }} />
-          <Stack.Screen name="register" options={{ headerShown: false }} />
-          <Stack.Screen name="donor" options={{ headerShown: false }} />
-          <Stack.Screen name="donor/(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="ngo" options={{ headerShown: false }} />
-          <Stack.Screen name="ngo/(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="carehome" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="carehome/(tabs)"
-            options={{ headerShown: false }}
-          />
-        </Stack>
+        <AlertModalContextProvider>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="login/index" options={{ headerShown: false }} />
+            <Stack.Screen name="register" options={{ headerShown: false }} />
+            <Stack.Screen name="donor" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="donor/(tabs)"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="ngo" options={{ headerShown: false }} />
+            <Stack.Screen name="ngo/(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="carehome" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="carehome/(tabs)"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="composter" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="composter/(tabs)"
+              options={{ headerShown: false }}
+            />
+          </Stack>
+
+          <SimpleAlertModal />
+        </AlertModalContextProvider>
       </AxiosAuthInterceptor>
     </AuthProvider>
   );

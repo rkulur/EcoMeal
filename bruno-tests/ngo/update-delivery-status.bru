@@ -1,11 +1,13 @@
 meta {
   name: Update Delivery Status
   type: http
-  seq: 29
+  seq: 6
 }
 
 patch {
   url: {{baseUrl}}/ngo/update-status/662e123456abcdef98765432
+  body: json
+  auth: none
 }
 
 headers {
@@ -13,7 +15,7 @@ headers {
   Authorization: Bearer {{ngoToken}}
 }
 
-body {
+body:json {
   {
     "status": "picked_up"
   }

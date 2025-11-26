@@ -8,7 +8,9 @@ export const step1Schema = z
     confirmPassword: z
       .string()
       .min(6, "Password must be at least 6 characters"),
-    phone: z.string().min(7, "Phone is required"),
+    phone: z.coerce.number().refine((val) => val.toString().length === 10, {
+      message: "Phone number should be exactly 10 digits",
+    }),
     role: z.enum(["donor", "ngo", "carehome", "composter", "admin"]),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -22,6 +24,10 @@ export const step2Schema = z.object({
     district: z.string().min(1, "District is required"),
     city: z.string().min(1, "City is required"),
     pincode: z.string().min(4, "Pincode is required"),
+  }),
+  locationGeo: z.object({
+    type: z.string().default("Point").optional(),
+    coordinates: z.array(z.number()).length(2),
   }),
 });
 

@@ -1,4 +1,4 @@
-import { GradientText, PoppinsText } from "@/src/components";
+import { PoppinsText } from "@/src/components";
 import {
   FONT,
   FONT_SIZE,
@@ -7,8 +7,8 @@ import {
   HEIGHT,
 } from "@/src/themes";
 import { LinearGradient } from "expo-linear-gradient";
-import { Href, RelativePathString, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Href } from "expo-router";
+import { Pressable, StyleSheet, View } from "react-native";
 
 type DonationStepsIndicatorProps = {
   currStep: 1 | 2 | 3 | 4;
@@ -19,17 +19,12 @@ type DonationStepsIndicatorProps = {
 const DonationStepsIndicator = ({
   currStep,
   stepTitle,
-  stepPaths,
 }: DonationStepsIndicatorProps) => {
-  const router = useRouter();
   return (
     <View style={s.container}>
       {Array.from({ length: 4 }).map((_, idx) => (
         <View style={{ gap: 10, alignItems: "center" }} key={idx}>
-          <Pressable
-            style={s.stepContainer}
-            onPress={() => router.navigate(stepPaths[idx])}
-          >
+          <Pressable style={s.stepContainer}>
             <LinearGradient
               colors={
                 idx + 1 === currStep ? GRADIENT_PRIMARY : GRADIENT_SECONDARY

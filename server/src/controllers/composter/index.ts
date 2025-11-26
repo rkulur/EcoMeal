@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Donation } from "../../models/Donation.model";
 import { successResponse, errorResponse } from "../../utils/responseWrapper";
+import ComposterModel from "../../models/Composter.model";
 
 export const getExpiredDonations = async (
   request: FastifyRequest,
@@ -104,5 +105,28 @@ export const getComposterImpact = async (
     reply.send(successResponse({ totalComposted }));
   } catch (err) {
     reply.code(500).send(errorResponse("Failed to fetch impact data", err));
+  }
+};
+
+export const getPersonalDetails = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const composterId = request.user.id;
+
+    const composter = await ComposterModel.findById(composterId, {
+      name: 1,
+      email: 1,
+      phone: 1,
+    });
+
+    reply.send(
+      successResponse(composter, "Successfully fetched personal details"),
+    );
+  } catch (err) {
+    reply
+      .code(500)
+      .send(errorResponse("Failed to fetch personal details", err));
   }
 };

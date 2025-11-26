@@ -1,12 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Donation, DonationDoc } from "../../models/Donation.model";
-import {
-  FoodRequest,
-  FoodRequestDoc,
-  FoodRequestType,
-} from "../../models/FoodRequest.model";
-import { successResponse, errorResponse } from "../../utils/responseWrapper";
 import { Types } from "mongoose";
+import CareHome from "../../models/CareHome.model";
+import { Donation, DonationDoc } from "../../models/Donation.model";
+import { FoodRequest, FoodRequestDoc } from "../../models/FoodRequest.model";
+import { errorResponse, successResponse } from "../../utils/responseWrapper";
+import CareHomeModel from "../../models/CareHome.model";
 
 export const markDonationReceived = async (
   request: FastifyRequest<{ Params: { donationId: string } }>,
@@ -60,7 +58,6 @@ export const approveDonation = async (
       return reply.code(404).send(errorResponse("Donation not found"));
     }
 
-    donation.assignedRequest = new Types.ObjectId(requestId);
     donation.assignedCareHome = new Types.ObjectId(carehomeId);
     donation.status = "assigned";
     await donation.save();
@@ -107,11 +104,9 @@ export const rejectDonation = async (
     if (reasonCode === "already_sourced") {
       foodRequest.status = "cancelled";
       donation.status = "pending";
-      donation.assignedRequest = null;
     } else if (reasonCode === "unsuitable_donation") {
       foodRequest.status = "pending";
       donation.status = "pending";
-      donation.assignedRequest = null;
     }
 
     foodRequest.rejectedDonations.push(donation._id);
@@ -146,20 +141,25 @@ export const getRequestHistory = async (
 };
 
 export const requestDonation = async (
-  request: FastifyRequest<{ Body: FoodRequestType }>,
+  request: FastifyRequest<{ Params: { donationId: string } }>,
   reply: FastifyReply,
 ) => {
   try {
     const careHomeId = request.user.id;
-    const { requestedItems, comments } = request.body;
+    const { donationId } = request.params;
 
-    const requestDoc = await FoodRequest.create({
-      requester: careHomeId,
-      requestedItems,
-      comments,
+    const donation = (await Donation.findById(donationId)) as DonationDoc;
+
+    if (!donation) {
+      reply.code(400).send(errorResponse("Donation not found"));
+    }
+
+    donation.requestedCarehomes.push({
+      carehomeId: new Types.ObjectId(careHomeId),
     });
+    donation.save();
 
-    reply.code(201).send(successResponse(requestDoc, "Request submitted"));
+    reply.code(201).send(successResponse("Request submitted successfully"));
   } catch (err) {
     reply.code(500).send(errorResponse("Failed to submit food request", err));
   }
@@ -170,17 +170,170 @@ export const getRequestedDonations = async (
   reply: FastifyReply,
 ) => {
   try {
-    const careHomeId = request.user.id;
+    const carehomeId = request.user.id;
 
-    const requests = await FoodRequest.find({
-      requester: careHomeId,
-      status: { $in: ["pending", "approved"] },
-    }).sort({ createdAt: -1 });
+    const requestedDonations = await Donation.find({
+      requestedCarehomes: {
+        $elemMatch: new Types.ObjectId(carehomeId),
+      },
+    })
+      .sort({ createdAt: -1 })
+      .populate("acceptedBy", "name email profilePicture")
+      .lean();
 
-    reply.send(successResponse(requests));
+    reply.send(successResponse(requestedDonations));
   } catch (err) {
     reply
       .code(500)
       .send(errorResponse("Failed to fetch requested donations", err));
+  }
+};
+
+export async function getAvailableDonations(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  try {
+    const carehomeId = request.user.id;
+    const carehome = await CareHome.findById(carehomeId).lean();
+
+    if (!carehome || !carehome.locationGeo) {
+      return reply
+        .code(404)
+        .send(errorResponse("Carehome not found or missing location data."));
+    }
+
+    const [lng, lat] = carehome.locationGeo.coordinates;
+    const donations = await Donation.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lng, lat] },
+          distanceField: "distance",
+          spherical: true,
+          maxDistance: 15000,
+        },
+      },
+
+      {
+        $addFields: {
+          isAlreadyRequested: {
+            $anyElementTrue: {
+              $map: {
+                input: { $ifNull: ["$requestedCarehomes", []] },
+                as: "carehome",
+                in: {
+                  $eq: [
+                    "$$carehome.carehomeId",
+                    new Types.ObjectId(carehomeId),
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          status: { $in: ["pending", "accepted", "picked_up"] },
+          // isExpired: false,
+          isAlreadyRequested: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "donor",
+          foreignField: "_id",
+          as: "donorInfo",
+        },
+      },
+      {
+        $unwind: "$donorInfo",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "ngo",
+          foreignField: "_id",
+          as: "ngoInfo",
+        },
+      },
+      {
+        $unwind: { path: "$ngoInfo", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $project: {
+          foodItems: 1,
+          pickupAddress: 1,
+          status: 1,
+          distance: 1,
+          donationCoordinates: "$locationGeo.coordinates",
+          "donorInfo.name": 1,
+          "donorInfo.email": 1,
+          "donorInfo.phone": 1,
+          ngoInfo: {
+            $cond: {
+              if: { $eq: ["$status", "accepted"] },
+              then: {
+                name: "$ngoInfo.name",
+                email: "$ngoInfo.email",
+                phone: "$ngoInfo.phone",
+              },
+              else: null,
+            },
+          },
+        },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
+
+    return reply.code(200).send(successResponse(donations));
+  } catch (err) {
+    console.error(err);
+    return reply.code(500).send(errorResponse("Internal Server Error", err));
+  }
+}
+
+export const getOngoingDeliveries = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const carehomeId = request.user.id;
+
+    const ongoingDeliveries = await Donation.find({
+      assignedCarehome: new Types.ObjectId(carehomeId),
+    }).lean();
+
+    reply.send(successResponse(ongoingDeliveries));
+  } catch (err) {
+    reply
+      .code(500)
+      .send(errorResponse("Failed to fetch ongoing deliveries", err));
+  }
+};
+
+export const getPersonalDetails = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const carehomeId = request.user.id;
+
+    const carehome = await CareHomeModel.findById(carehomeId, {
+      name: 1,
+      email: 1,
+      phone: 1,
+    });
+
+    reply.send(
+      successResponse(carehome, "Successfully fetched personal details"),
+    );
+  } catch (err) {
+    reply
+      .code(500)
+      .send(errorResponse("Failed to fetch personal details", err));
   }
 };

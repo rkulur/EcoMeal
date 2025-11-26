@@ -1,19 +1,11 @@
 import { PoppinsText } from "@/src/components";
-import {
-  BORDER_RADIUS,
-  COLORS,
-  FONT,
-  FONT_SIZE,
-  GRADIENT_PRIMARY,
-  SPACING,
-} from "@/src/themes";
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, View } from "react-native";
-import ProgressBar from "../ProgressBar";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
-import Status from "./Status";
+import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
+import { DonationHistoryListType } from "@/src/types/donor";
 import { diffSummaryAndCloseness } from "@/src/utils/differenceAndClosenessOfDates";
 import getDonationName from "@/src/utils/getDonationName";
+import { StyleSheet, View } from "react-native";
+import ProgressBar from "../ProgressBar";
+import Status from "./Status";
 
 const DonationCard = ({ donation }: { donation: DonationHistoryListType }) => {
   return (

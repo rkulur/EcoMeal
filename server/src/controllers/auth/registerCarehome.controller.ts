@@ -27,13 +27,6 @@ interface CareHomeRegistrationBody {
   dietaryRestrictions?: string[];
   preferredDeliveryTime: string;
   profilePicture?: string;
-  verificationDocument: string;
-  socialMedia?: {
-    website?: string;
-    facebook?: string;
-    instagram?: string;
-    twitter?: string;
-  };
 }
 
 type CareHomeRegistrationRequest = FastifyRequest<{
@@ -60,8 +53,6 @@ export const registerCareHome = async (
       dietaryRestrictions,
       preferredDeliveryTime,
       profilePicture,
-      verificationDocument,
-      socialMedia,
     } = request.body;
 
     if (password !== confirmPassword) {
@@ -89,8 +80,6 @@ export const registerCareHome = async (
       dietaryRestrictions,
       preferredDeliveryTime,
       profilePicture,
-      verificationDocument,
-      socialMedia,
       role: "carehome",
     });
 

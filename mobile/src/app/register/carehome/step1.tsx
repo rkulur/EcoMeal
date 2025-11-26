@@ -25,7 +25,7 @@ export default function CarehomeRegistrationStep1() {
       email: "orpanhelp@gmail.com",
       password: "securepassword",
       confirmPassword: "securepassword",
-      phone: "8191929290",
+      phone: 8191929290,
       role: "carehome",
     },
   });
@@ -34,7 +34,6 @@ export default function CarehomeRegistrationStep1() {
 
   const onSubmit = (data: step1Type) => {
     setData(data);
-    alert("Step1 completed successfully");
     router.push("/register/carehome/step2");
   };
   return (
@@ -109,7 +108,7 @@ export default function CarehomeRegistrationStep1() {
             <InputBox
               label="Phone number"
               onChangeText={onChange}
-              value={value}
+              value={value.toString()}
             />
           )}
         />

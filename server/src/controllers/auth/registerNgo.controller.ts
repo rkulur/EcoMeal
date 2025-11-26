@@ -25,13 +25,6 @@ interface NGORegistrationBody {
   servingCapacity?: number;
   nextPickupTime?: string;
   profilePicture?: string;
-  verificationDocument: string;
-  socialMedia?: {
-    website?: string;
-    facebook?: string;
-    instagram?: string;
-    twitter?: string;
-  };
 }
 
 type NGORegistrationRequest = FastifyRequest<{
@@ -55,8 +48,6 @@ const registerNGO = async (
       foodTypesAccepted,
       servingCapacity,
       profilePicture,
-      verificationDocument,
-      socialMedia,
     } = request.body;
 
     if (password !== confirmPassword) {
@@ -81,8 +72,6 @@ const registerNGO = async (
       foodTypesAccepted,
       servingCapacity,
       profilePicture,
-      verificationDocument,
-      socialMedia,
       role: "ngo",
     });
 

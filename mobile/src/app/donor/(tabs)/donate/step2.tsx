@@ -51,7 +51,7 @@ const DonationStep2 = () => {
   };
 
   useEffect(() => {
-    if (locationDetails) {
+    if (locationDetails && coords) {
       const data = {
         pickupAddress: {
           address: locationDetails.formattedAddress!,
@@ -65,7 +65,7 @@ const DonationStep2 = () => {
       };
       reset(data);
     }
-  }, [locationDetails, reset, coords]);
+  }, [locationDetails?.formattedAddress]);
   return (
     <DonationStepSkeleton currStep={2}>
       <View style={s.container}>

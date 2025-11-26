@@ -1,21 +1,16 @@
 import { CustomSelect, InputBox, PoppinsText } from "@/src/components";
+import SimpleAlertModal from "@/src/components/SimpleAlertModal";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
 import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep1DonorData } from "@/src/core/auth/hooks/donor/step1Context";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import { step1Schema } from "@/src/validation/register/donor/donorRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet } from "react-native";
 import { z } from "zod";
-
-const categoryOptions = [
-  { label: "Individual", value: "individual" },
-  { label: "Restaurant", value: "restaurant" },
-  { label: "Hotel", value: "hotel" },
-  { label: "Catering", value: "catering" },
-  { label: "Other", value: "other" },
-];
 
 type step1Type = z.infer<typeof step1Schema>;
 
@@ -32,8 +27,7 @@ export default function DonorRegistrationStep1() {
       email: "sunshine@gmail.com",
       password: "securepassword",
       confirmPassword: "securepassword",
-      phone: "securepassword",
-      category: "other",
+      phone: 8199293300,
       role: "donor",
     },
   });
@@ -42,9 +36,9 @@ export default function DonorRegistrationStep1() {
 
   const onSubmit = (data: step1Type) => {
     setData(data);
-    alert("Step1 completed successfully");
     router.push("/register/donor/step2");
   };
+
   return (
     <>
       <RegistrationStepSkeleton
@@ -97,29 +91,14 @@ export default function DonorRegistrationStep1() {
           name="phone"
           render={({ field: { value, onChange } }) => (
             <InputBox
+              keyboardType="number-pad"
               label="Phone number"
               onChangeText={onChange}
-              value={value}
+              value={value.toString()}
             />
           )}
         />
         {errors.phone && <PoppinsText>{errors.phone.message}</PoppinsText>}
-        <Controller
-          control={control}
-          name="category"
-          render={({ field: { value, onChange } }) => (
-            <CustomSelect
-              label="Category"
-              onValueChange={onChange}
-              categoryOptions={categoryOptions}
-              value={value}
-            />
-          )}
-        />
-        {errors.category && (
-          <PoppinsText>{errors.category.message}</PoppinsText>
-        )}
-
         <StepButtons
           totalSteps={3}
           currStep={1}

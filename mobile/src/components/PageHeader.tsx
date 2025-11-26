@@ -47,6 +47,8 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: SPACING.page,
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
+    backgroundColor: "white",
+    zIndex: 999,
   },
   logo: {
     width: 38,

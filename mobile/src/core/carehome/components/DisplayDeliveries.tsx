@@ -1,38 +1,58 @@
-import { COLORS } from "@/src/themes";
+import { PoppinsText } from "@/src/components";
+import { BORDER_RADIUS, COLORS } from "@/src/themes";
+import { DonationType } from "@/src/types/donor";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
-import getRequestHistory from "../api/getRequestHistory";
-import HistoryCard from "../../donor/components/history/HistoryCard";
-import { FoodRequestHistoryType } from "@/src/validation/requestFood.schema";
-import { PoppinsText } from "@/src/components";
+import getOngoingDeliveries from "../api/getOngoingDeliveries";
 
-const DisplayDeliveries = () => {
-  const [history, setHistory] = useState<FoodRequestHistoryType[]>();
+type DisplayDeliveriesProps = {
+  filter: "Ongoing" | "Past";
+};
+
+const DisplayDeliveries = ({ filter }: DisplayDeliveriesProps) => {
+  const [history, setHistory] = useState<DonationType[]>();
   useEffect(() => {
     const getHistory = async () => {
-      const res = await getRequestHistory();
+      const res = await getOngoingDeliveries();
       if (!res.ok) {
         alert(res.error.message);
         return;
       }
-      alert(res.data);
       console.log(res.data);
       setHistory(res.data);
     };
     getHistory();
   }, []);
 
+  if (!history || history.length == 0) {
+    return (
+      <View
+        style={{
+          gap: 10,
+          padding: 20,
+          paddingVertical: 160,
+          borderRadius: BORDER_RADIUS,
+          borderColor: COLORS.outlineGray,
+          borderWidth: 1,
+        }}
+      >
+        <PoppinsText style={{ textAlign: "center", color: COLORS.outlineGray }}>
+          No {filter} Deliveries
+        </PoppinsText>
+      </View>
+    );
+  }
+
   return (
     <View>
       <Pressable
-        // onPress={() => router.push(`/donor/history/${donation._id}`)}
         style={({ pressed }) => [
           {
             backgroundColor: pressed ? COLORS.hoverGray : COLORS.white,
           },
         ]}
       >
-        {history && <PoppinsText>No history</PoppinsText>}
+        <PoppinsText>Sheesh</PoppinsText>
       </Pressable>
     </View>
   );

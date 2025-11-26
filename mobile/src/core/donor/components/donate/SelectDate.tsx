@@ -54,7 +54,7 @@ const SelectDate = ({
         maximumDate={(() => {
           const today = new Date();
           const maxDate = new Date();
-          maxDate.setDate(today.getDate() + 3);
+          maxDate.setDate(today.getDate() + 2);
           return maxDate;
         })()}
         display="compact"

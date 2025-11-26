@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { NgoRegistrationType } from "./register/ngo/ngoRegistration.schema";
-import { DonationType } from "./donate.schema";
+import { DonationType } from "../types/donor";
 
 const requestedItemSchema = z.object({
   name: z.string().min(1, "Item name is required"),

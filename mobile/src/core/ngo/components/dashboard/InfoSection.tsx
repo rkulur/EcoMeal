@@ -9,7 +9,7 @@ const InfoSection = () => {
       <InfoCard
         icon={<Feather name="package" size={50} />}
         title={"Pending Requests"}
-        count={12}
+        count={0}
       />
       <InfoCard
         icon={
@@ -20,7 +20,7 @@ const InfoSection = () => {
           />
         }
         title={"Accepted Donations"}
-        count={8}
+        count={0}
       />
       <InfoCard
         icon={
@@ -31,12 +31,12 @@ const InfoSection = () => {
           />
         }
         title={"Meals served"}
-        count={1254}
+        count={0}
       />
       <InfoCard
         icon={<Ionicons name="leaf" size={50} color={COLORS.green} />}
         title={"Impact"}
-        count={87}
+        count={0}
       />
     </View>
   );

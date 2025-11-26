@@ -1,19 +1,18 @@
 import { InputBox, PoppinsText } from "@/src/components";
+import BottomUpModal from "@/src/components/BottomUpModal";
+import MapScreen from "@/src/components/MapScreen";
 import StepButtons from "@/src/core/auth/components/RegisterButton";
 import RegistrationStepSkeleton from "@/src/core/auth/components/StepSkeleton";
 import { useStep2DonorData } from "@/src/core/auth/hooks/donor/step2Context";
+import { BORDER_RADIUS, COLORS } from "@/src/themes";
 import { step2Schema } from "@/src/validation/register/donor/donorRegistration.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, StyleSheet, View } from "react-native";
 import { z } from "zod";
-import * as Location from "expo-location";
-import BottomUpModal from "@/src/components/BottomUpModal";
-import MapComponent from "@/src/components/MapComponent";
-import { BORDER_RADIUS, COLORS } from "@/src/themes";
-import MapScreen from "@/src/components/MapScreen";
 
 type step2Type = z.infer<typeof step2Schema>;
 const DonorRegistrationStep2 = () => {
@@ -39,13 +38,16 @@ const DonorRegistrationStep2 = () => {
 
   const onSubmit = (data: step2Type) => {
     setData(data);
-    alert("Step 2 completed");
     router.push("/register/donor/step3");
   };
 
   const [showMap, setShowMap] = useState(false);
   const [locationDetails, setLocationDetails] =
     useState<Location.LocationGeocodedAddress | null>(null);
+  const [editStateField, setEditStateField] = useState(false);
+  const [editDistrictField, setEditDistrictField] = useState(false);
+  const [editCityField, setEditCityField] = useState(false);
+  const [editPincodeField, setEditPincodeField] = useState(false);
 
   useEffect(() => {
     if (locationDetails) {
@@ -58,6 +60,10 @@ const DonorRegistrationStep2 = () => {
         },
       };
       reset(data);
+      if (!locationDetails.region) setEditStateField(true);
+      if (!locationDetails.subregion) setEditDistrictField(true);
+      if (!locationDetails.city) setEditCityField(true);
+      if (!locationDetails.postalCode) setEditPincodeField(true);
     }
   }, [locationDetails, reset]);
   return (
@@ -75,10 +81,6 @@ const DonorRegistrationStep2 = () => {
         </Pressable>
       </View>
       <BottomUpModal isVisible={showMap} setIsVisible={setShowMap}>
-        {/* <MapComponent */}
-        {/*   locationDetails={locationDetails} */}
-        {/*   setLocationDetails={setLocationDetails} */}
-        {/* /> */}
         <MapScreen
           setLocationDetails={setLocationDetails}
           locationDetails={locationDetails}
@@ -88,7 +90,20 @@ const DonorRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox label={"State"} value={value} onChangeText={onChange} />
+            <Pressable
+              onPress={() => {
+                if (editStateField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"State"}
+                value={value}
+                onChangeText={onChange}
+                canEdit={editStateField}
+              />
+            </Pressable>
           );
         }}
         name={"location.state"}
@@ -100,11 +115,20 @@ const DonorRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox
-              label={"District"}
-              value={value}
-              onChangeText={onChange}
-            />
+            <Pressable
+              onPress={() => {
+                if (editDistrictField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"District"}
+                value={value}
+                onChangeText={onChange}
+                canEdit={editDistrictField}
+              />
+            </Pressable>
           );
         }}
         name={"location.district"}
@@ -116,7 +140,20 @@ const DonorRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox label={"City"} value={value} onChangeText={onChange} />
+            <Pressable
+              onPress={() => {
+                if (editCityField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"City"}
+                value={value}
+                onChangeText={onChange}
+                canEdit={editCityField}
+              />
+            </Pressable>
           );
         }}
         name={"location.city"}
@@ -128,12 +165,21 @@ const DonorRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox
-              label={"Pincode"}
-              value={value}
-              onChangeText={onChange}
-              keyboardType="name-phone-pad"
-            />
+            <Pressable
+              onPress={() => {
+                if (editPincodeField === false) {
+                  setShowMap(true);
+                }
+              }}
+            >
+              <InputBox
+                label={"Pincode"}
+                value={value}
+                onChangeText={onChange}
+                keyboardType="name-phone-pad"
+                canEdit={editPincodeField}
+              />
+            </Pressable>
           );
         }}
         name={"location.pincode"}

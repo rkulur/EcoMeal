@@ -21,6 +21,10 @@ import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { z } from "zod";
 import { registerNgo } from "@/src/core/auth/api/register";
+import SimpleAlertModal from "@/src/components/SimpleAlertModal";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
+import { useEffect, useState } from "react";
+import { Role } from "@/src/core/auth/types";
 
 type step4Type = z.infer<typeof step4Schema>;
 const NgoRegistrationstep4 = () => {
@@ -32,14 +36,7 @@ const NgoRegistrationstep4 = () => {
   } = useForm<step4Type>({
     resolver: zodResolver(step4Schema),
     defaultValues: {
-      verificationDocument: "",
       profilePicture: "",
-      socialMedia: {
-        website: "https://www.orphanhelp.com",
-        facebook: "https://www.facebook.com/orphanhelp",
-        instagram: "https://www.instagram.com/orphanhelp",
-        twitter: "https://www.twitter.com/orphanhelp",
-      },
     },
   });
 
@@ -47,131 +44,78 @@ const NgoRegistrationstep4 = () => {
   const { data: data2 } = useStep2NgoData();
   const { data: data3 } = useStep3NgoData();
   const { data: data4, setData: setData4 } = useStep4NgoData();
-  const router = useRouter();
+
+  const { isVisible, showModal } = useAlertModal();
+  const [regData, setRegData] = useState<{ token: string; role: Role } | null>(
+    null,
+  );
 
   const onSubmit = async (data: step4Type) => {
-    console.log("Inside onSubmit");
     setData4(data);
-    const url = await uploadImgToCloud({
-      bucket: "ecomeal",
-      resizedURI: data.verificationDocument!,
-      folder: "verificationDocument",
-    });
+    let url;
+    if (data.profilePicture) {
+      url = await uploadImgToCloud({
+        bucket: "ecomeal",
+        resizedURI: data.profilePicture,
+        folder: "profilePicture",
+      });
+    }
     const ngoData = {
       ...data1,
       ...data2,
       ...data3,
       ...data4,
-      verificationDocument: url,
+      profilePicture: url ?? "",
     } as NgoRegistrationType;
     const res = await registerNgo(ngoData);
     if (!res.ok) {
-      alert(res.error.message);
+      showModal("Something went wrong!", res.message);
       console.log(res.error.stack);
       return;
     }
-    alert("Registration Successfull");
     const { token, role } = res.data;
-    signIn(token, role);
+    setRegData({ token, role });
+    showModal(
+      "Registration Successfull",
+      "Your NGO has been successfully registered. You can now log in to start managing donations!",
+    );
   };
+
+  useEffect(() => {
+    if (regData && !isVisible) {
+      signIn(regData.token, regData.role);
+    }
+  }, [regData, isVisible]);
+
   return (
-    <RegistrationStepSkeleton
-      totalSteps={4}
-      currStep={4}
-      heading="Build trust and impact"
-    >
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <View style={{ display: "flex", gap: 8 }}>
-              <PoppinsText>Add Verification Document</PoppinsText>
-              <ImageInput value={value} onChange={onChange} />
-            </View>
-          );
-        }}
-        name={"verificationDocument"}
-      />
-      {errors.verificationDocument && (
-        <PoppinsText>{errors.verificationDocument.message}</PoppinsText>
-      )}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <View style={{ display: "flex", gap: 8 }}>
-              <PoppinsText>Add Profile Picture</PoppinsText>
-              <ImageInput value={value} onChange={onChange} />
-            </View>
-          );
-        }}
-        name={"profilePicture"}
-      />
-      {/* {errors.verificationDocument && ( */}
-      {/*   <PoppinsText>{errors.verificationDocument.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox label={"Website"} value={value} onChangeText={onChange} />
-          );
-        }}
-        name={"socialMedia.website"}
-      />
-      {/* {errors.socialMedia?.website && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.website.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox
-              label={"Facebook"}
-              value={value}
-              onChangeText={onChange}
-            />
-          );
-        }}
-        name={"socialMedia.facebook"}
-      />
-      {/* {errors.socialMedia?.facebook && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.facebook.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox
-              label={"Instagram"}
-              value={value}
-              onChangeText={onChange}
-            />
-          );
-        }}
-        name={"socialMedia.instagram"}
-      />
-      {/* {errors.socialMedia?.instagram && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.instagram.message}</PoppinsText> */}
-      {/* )} */}
-      <Controller
-        control={control}
-        render={function ({ field: { value, onChange } }) {
-          return (
-            <InputBox label={"Twitter"} value={value} onChangeText={onChange} />
-          );
-        }}
-        name={"socialMedia.twitter"}
-      />
-      {/* {errors.socialMedia?.twitter && ( */}
-      {/*   <PoppinsText>{errors.socialMedia.twitter.message}</PoppinsText> */}
-      {/* )} */}
-      <StepButtons
-        totalSteps={3}
-        currStep={3}
-        onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
-      />
-    </RegistrationStepSkeleton>
+    <>
+      <RegistrationStepSkeleton
+        totalSteps={4}
+        currStep={4}
+        heading="Build trust and impact"
+      >
+        <Controller
+          control={control}
+          render={function ({ field: { value, onChange } }) {
+            return (
+              <View style={{ display: "flex", gap: 8 }}>
+                <PoppinsText>Add Profile Picture</PoppinsText>
+                <ImageInput value={value} onChange={onChange} />
+              </View>
+            );
+          }}
+          name={"profilePicture"}
+        />
+        {errors.profilePicture && (
+          <PoppinsText>{errors.profilePicture.message}</PoppinsText>
+        )}
+        <StepButtons
+          totalSteps={3}
+          currStep={3}
+          onPress={handleSubmit(onSubmit, (err) => alert(JSON.stringify(err)))}
+        />
+      </RegistrationStepSkeleton>
+    </>
   );
 };
 

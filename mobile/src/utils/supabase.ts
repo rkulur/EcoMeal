@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, processLock } from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 import { uriToArrayBuffer } from "./uriToArrayBuffer";
+import { RegistrationCloudFiles } from "../types/supabase";
 
 export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL!,
@@ -49,4 +50,29 @@ export async function deleteImgFromCloud(bucket: string, paths: string[]) {
 
   if (error) return { success: false, error };
   return { success: true };
+}
+
+const getCloudFilePath = (path: string) => {
+  return path.split("/").splice(-2).join("/");
+};
+
+export async function removeFilesUploadedToCloud<T>(
+  data: T & RegistrationCloudFiles,
+) {
+  const paths: string[] = [];
+  if (data.verificationDocument) {
+    paths.push(getCloudFilePath(data.verificationDocument));
+  }
+
+  if (data.profilePicture) {
+    paths.push(getCloudFilePath(data.profilePicture));
+  }
+
+  if (!paths.length) return;
+
+  const { success, error } = await deleteImgFromCloud(
+    process.env.EXPO_PUBLIC_SUPABASE_STORAGE_KEY,
+    paths,
+  );
+  if (!success) throw error;
 }

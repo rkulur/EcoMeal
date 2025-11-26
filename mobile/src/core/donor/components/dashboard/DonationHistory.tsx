@@ -4,8 +4,8 @@ import DonationHistoryCard from "./DonationHistoryCard";
 import OutlineButton from "@/src/components/OutlineButton";
 import { BORDER_RADIUS, COLORS, SPACING } from "@/src/themes";
 import { PoppinsText } from "@/src/components";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
 import getDonationName from "@/src/utils/getDonationName";
+import { DonationHistoryListType } from "@/src/types/donor";
 
 type DonationHistoryProps = {
   donations?: DonationHistoryListType[];

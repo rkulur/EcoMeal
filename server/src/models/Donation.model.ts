@@ -78,14 +78,26 @@ const donationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Care Home
     },
-    assignedRequest: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "FoodRequest",
-    },
+    requestedCarehomes: [
+      {
+        carehomeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        status: {
+          type: String,
+          enum: ["requested", "approved", "rejected"],
+          default: "requested",
+        },
+        requestedAt: { type: Date, default: Date.now },
+      },
+    ],
     pickupDate: { type: Date },
     deliveryDate: { type: Date },
     isExpired: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
+    ngoPickedUp: { type: Boolean, default: false },
+    donorConfirmedPickup: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

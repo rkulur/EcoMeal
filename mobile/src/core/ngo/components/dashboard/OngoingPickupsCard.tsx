@@ -8,17 +8,19 @@ import {
 } from "@/src/themes";
 import getDonationName from "@/src/utils/getDonationName";
 import getMinimumExpiry from "@/src/utils/getMinExpiry";
-import { DonationType } from "@/src/validation/donate.schema";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 import Status from "../../../donor/components/dashboard/Status";
 import GradientButton from "@/src/components/GradientButton";
 import ProgressBar from "../../../donor/components/ProgressBar";
+import { AvailableDonation, DonationType } from "@/src/types/donor";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 
 type OngoingDonationCardProps = {
   donation: DonationType;
 };
 const OngoingDonationCard = ({ donation }: OngoingDonationCardProps) => {
+  const { showModal } = useAlertModal();
   return (
     <View style={s.container}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -60,7 +62,9 @@ const OngoingDonationCard = ({ donation }: OngoingDonationCardProps) => {
           </PoppinsText>
         </View>
         <GradientButton
-          onPress={() => null}
+          onPress={() => {
+            showModal("Ooops!", "No data to show");
+          }}
           text={"Details"}
           style={{ flex: 0.5 }}
           gradient={GRADIENT_SECONDARY_REVERSED}

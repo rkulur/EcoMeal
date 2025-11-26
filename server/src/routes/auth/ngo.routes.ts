@@ -15,7 +15,6 @@ const ngoSchema = {
       "preferredPickupTime",
       "foodTypesAccepted",
       "servingCapacity",
-      "verificationDocument",
     ],
     properties: {
       name: { type: "string" },
@@ -49,16 +48,6 @@ const ngoSchema = {
       servingCapacity: { type: "number" },
       nextPickupTime: { type: "string" },
       profilePicture: { type: "string" },
-      verificationDocument: { type: "string" },
-      socialMedia: {
-        type: "object",
-        properties: {
-          website: { type: "string" },
-          facebook: { type: "string" },
-          instagram: { type: "string" },
-          twitter: { type: "string" },
-        },
-      },
     },
   },
 };

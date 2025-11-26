@@ -6,7 +6,6 @@ import { generateToken } from "../../utils/generateToken";
 
 interface DonorRegistrationRequest extends FastifyRequest {
   body: {
-    category: "individual" | "restaurant" | "hotel" | "catering" | "other";
     name: string;
     email: string;
     phone: string;
@@ -19,13 +18,6 @@ interface DonorRegistrationRequest extends FastifyRequest {
       pincode: string;
     };
     profilePicture?: string;
-    verificationDocument: string;
-    socialMedia?: {
-      website?: string;
-      facebook?: string;
-      instagram?: string;
-      twitter?: string;
-    };
   };
   jwt: {
     sign: (payload: { id: unknown }) => string;
@@ -38,7 +30,6 @@ const registerDonor = async (
 ) => {
   try {
     const {
-      category,
       name,
       email,
       phone,
@@ -46,8 +37,6 @@ const registerDonor = async (
       confirmPassword,
       location,
       profilePicture,
-      verificationDocument,
-      socialMedia,
     } = request.body;
 
     // Validation
@@ -72,10 +61,7 @@ const registerDonor = async (
       phone,
       location,
       profilePicture,
-      verificationDocument,
-      socialMedia,
       role: "donor",
-      category, // specific to donor
     });
 
     // Generate token

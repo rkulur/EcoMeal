@@ -30,7 +30,6 @@ const CarehomeRegistrationStep3 = () => {
 
   const onSubmit = async (data: step3Type) => {
     setData3(data);
-    alert("Step 3 completed successfully");
     router.push("/register/carehome/step4");
   };
   return (

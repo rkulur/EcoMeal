@@ -1,16 +1,12 @@
-import { api, ApiResult } from "@/src/api/axios";
-import { deleteImgFromCloud } from "@/src/utils/supabase";
+import { api, ApiResponse, ApiResult } from "@/src/api/axios";
+import { FastifyError } from "@/src/types/fastify";
+import { RegistrationCloudFiles } from "@/src/types/supabase";
+import { removeFilesUploadedToCloud } from "@/src/utils/supabase";
 import { CarehomeRegistrationType } from "@/src/validation/register/carehome/carehomeRegistration.schema";
 import { ComposterRegistrationType } from "@/src/validation/register/composter/composterRegistration.schema";
 import { DonorRegistrationType } from "@/src/validation/register/donor/donorRegistration.schema";
 import { NgoRegistrationType } from "@/src/validation/register/ngo/ngoRegistration.schema";
 import { isAxiosError } from "axios";
-
-type RegisterResponse = {
-  success: boolean;
-  payload: Payload;
-  message: string;
-};
 
 type Payload = {
   name: string;
@@ -23,55 +19,32 @@ async function registerUser<T>(
   path: string,
 ): Promise<ApiResult<Payload>> {
   try {
-    const res = await api.post<RegisterResponse>(path, data);
+    const res = await api.post<ApiResponse<Payload | FastifyError>>(path, data);
     const { success, payload, message } = res.data;
 
     if (!success) {
-      console.error("Registration unsuccessfull");
-      console.error(res.data);
       removeFilesUploadedToCloud(data);
-      return { ok: false, error: { name: "Error", message } };
+      const error = payload as FastifyError;
+      return { ok: false, error, message: error.message };
     }
 
-    return { ok: true, data: payload };
+    return { ok: true, data: payload as Payload, message };
   } catch (error) {
     removeFilesUploadedToCloud(data);
-    if (isAxiosError(error)) return { ok: false, error: error };
+    if (isAxiosError<ApiResponse<Payload>>(error))
+      return {
+        ok: false,
+        error: error,
+        message: JSON.stringify(error.response?.data) ?? "Unexpected Error",
+      };
 
     return {
       ok: false,
       error: error as Error,
+      message: "Unexpected Error",
     };
   }
 }
-
-interface RegistrationCloudFiles {
-  verificationDocument?: string;
-  profilePicture?: string;
-}
-
-async function removeFilesUploadedToCloud<T>(data: T & RegistrationCloudFiles) {
-  const paths: string[] = [];
-  if (data.verificationDocument) {
-    paths.push(getCloudFilePath(data.verificationDocument));
-  }
-
-  if (data.profilePicture) {
-    paths.push(getCloudFilePath(data.profilePicture));
-  }
-
-  if (!paths.length) return;
-
-  const { success, error } = await deleteImgFromCloud(
-    process.env.EXPO_PUBLIC_SUPABASE_STORAGE_KEY,
-    paths,
-  );
-  if (!success) throw error;
-}
-
-const getCloudFilePath = (path: string) => {
-  return path.split("/").splice(-2).join("/");
-};
 
 export const registerDonor = (data: DonorRegistrationType) =>
   registerUser<DonorRegistrationType>(data, "/auth/register/donor");

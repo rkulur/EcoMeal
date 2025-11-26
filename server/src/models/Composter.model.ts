@@ -1,5 +1,5 @@
 import User, { IUser } from "./User.model";
-import { InferSchemaType, Schema } from "mongoose";
+import mongoose, { InferSchemaType, Schema } from "mongoose";
 
 export interface IComposter extends IUser {
   capacityKgPerDay: number;
@@ -13,3 +13,5 @@ const composterSchema = new Schema({
 
 export type ComposterType = InferSchemaType<typeof composterSchema>;
 export default User.discriminator<IComposter>("composter", composterSchema);
+export const Composter =
+  mongoose.models.Donation || mongoose.model("Composter", composterSchema);

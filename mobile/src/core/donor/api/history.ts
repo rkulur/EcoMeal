@@ -1,28 +1,25 @@
 import { api, ApiResponse, ApiResult } from "@/src/api/axios";
-import { DonationType } from "@/src/validation/donate.schema";
-import { FastifyError } from "./donation";
+import { DonationType } from "@/src/types/donor";
+import { FastifyError } from "@/src/types/fastify";
 import { isAxiosError } from "axios";
 
 export default async function getDonationHistory(): Promise<
-  ApiResult<DonationType[], FastifyError>
+  ApiResult<DonationType[]>
 > {
   try {
-    const res = await api.get<ApiResponse<DonationType[]>>(
+    const res = await api.get<ApiResponse<DonationType[] | FastifyError>>(
       "/donor/donation/history",
     );
     const { success, payload, message } = res.data;
-    if (!success)
-      return { ok: false, error: payload as unknown as FastifyError };
-    return { ok: true, data: payload as DonationType[] };
+    if (!success) return { ok: false, error: payload as FastifyError, message };
+    return { ok: true, data: payload as DonationType[], message };
   } catch (error) {
     if (isAxiosError(error))
-      return { ok: false, error: error.response?.data ?? error };
+      return { ok: false, error: error, message: "Unexpected Error" };
     return {
       ok: false,
-      error: {
-        name: "Unexpected error",
-        message: "Something went wrong while fetching donation history",
-      } as FastifyError,
+      error: new Error("Error", { cause: error }),
+      message: "Unexpected Error",
     };
   }
 }

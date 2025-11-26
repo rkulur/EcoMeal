@@ -24,7 +24,7 @@ export default function ComposterRegistrationStep1() {
       email: "composter@gmail.com",
       password: "securepassword",
       confirmPassword: "securepassword",
-      phone: "8191929290",
+      phone: 8191929290,
       role: "composter",
     },
   });
@@ -90,7 +90,7 @@ export default function ComposterRegistrationStep1() {
             <InputBox
               label="Phone number"
               onChangeText={onChange}
-              value={value}
+              value={value.toString()}
             />
           )}
         />

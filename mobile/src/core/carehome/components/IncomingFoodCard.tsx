@@ -1,14 +1,11 @@
 import { PoppinsText } from "@/src/components";
 import OutlineButton from "@/src/components/OutlineButton";
 import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
-import {
-  DonationHistoryListType,
-  DonationType,
-} from "@/src/validation/donate.schema";
 import { StyleSheet, View } from "react-native";
 import Status from "../../donor/components/dashboard/Status";
+import { DonationHistoryListType } from "@/src/types/donor";
 type IncomingFoodCardProps = {
-  donation?: DonationHistoryListType;
+  donation: DonationHistoryListType;
 };
 
 const IncomingFoodCard = ({ donation }: IncomingFoodCardProps) => {

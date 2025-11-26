@@ -17,6 +17,7 @@ const PoppinsHeadText = ({ style, ...props }: PoppinsHeadTextProps) => {
         {
           fontFamily: FONT.BOLD,
           fontSize: FONT_SIZE.xlarge,
+          lineHeight: 35,
         },
         style,
       ]}

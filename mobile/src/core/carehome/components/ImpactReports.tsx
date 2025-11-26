@@ -13,7 +13,14 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 
-const ImpactReports = () => {
+type ImpactReportsProps = {
+  totalMealsServed: number;
+  foodReceived: number;
+};
+const ImpactReports = ({
+  totalMealsServed,
+  foodReceived,
+}: ImpactReportsProps) => {
   return (
     <View style={s.container}>
       <View style={s.infoContainer}>
@@ -23,7 +30,7 @@ const ImpactReports = () => {
           >
             Total meals served
           </PoppinsText>
-          <PoppinsText style={s.heading}>1,250</PoppinsText>
+          <PoppinsText style={s.heading}>{totalMealsServed}</PoppinsText>
         </View>
         <View>
           <LinearGradient
@@ -45,7 +52,7 @@ const ImpactReports = () => {
           >
             Food Received
           </PoppinsText>
-          <PoppinsText style={s.heading}>325 Kg</PoppinsText>
+          <PoppinsText style={s.heading}>{foodReceived}</PoppinsText>
         </View>
         <View>
           <LinearGradient

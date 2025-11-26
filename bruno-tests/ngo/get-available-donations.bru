@@ -1,11 +1,13 @@
 meta {
   name: Get Available Donations
   type: http
-  seq: 26
+  seq: 4
 }
 
 get {
   url: {{baseUrl}}/ngo/available-donations
+  body: none
+  auth: none
 }
 
 headers {

@@ -1,22 +1,11 @@
-import { DonationType, FoodItem } from "../validation/donate.schema";
+import { FoodItem } from "../types/donor";
 import { getDaysDifferenceFromToday } from "./getDaysDifferenceFromToday";
 
-type FoodItemProps = {
-  name: string;
-  quantity: number;
-  unit:
-    | "plates"
-    | "servings"
-    | "packets"
-    | "containers"
-    | "trays"
-    | "bowls"
-    | "boxes"
-    | "liters"
-    | "ml";
-  expiryDate?: string;
-};
-export default function getMinimumExpiry(foodItems: FoodItemProps[]) {
+type FoodItemProps = Omit<FoodItem, "expiryDate"> & { expiryDate?: string };
+
+export default function getMinimumExpiry(
+  foodItems: FoodItem[] | FoodItemProps[],
+) {
   let min = 0;
 
   foodItems.forEach((item) => {

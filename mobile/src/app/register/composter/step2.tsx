@@ -47,6 +47,15 @@ const ComposterRegistrationStep2 = () => {
   const [showMap, setShowMap] = useState(false);
   const [locationDetails, setLocationDetails] =
     useState<Location.LocationGeocodedAddress | null>(null);
+  const [editStateField, setEditStateField] = useState(false);
+  const [editDistrictField, setEditDistrictField] = useState(false);
+  const [editCityField, setEditCityField] = useState(false);
+  const [editPincodeField, setEditPincodeField] = useState(false);
+
+  const [coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   useEffect(() => {
     if (locationDetails) {
@@ -57,8 +66,17 @@ const ComposterRegistrationStep2 = () => {
           city: locationDetails.city!,
           pincode: locationDetails.postalCode!,
         },
+        locationGeo: {
+          type: "Point",
+          coordinates: coords ? [coords.longitude, coords.latitude] : [0, 0],
+        },
       };
       reset(data);
+
+      if (!locationDetails.region) setEditStateField(true);
+      if (!locationDetails.subregion) setEditDistrictField(true);
+      if (!locationDetails.city) setEditCityField(true);
+      if (!locationDetails.postalCode) setEditPincodeField(true);
     }
   }, [locationDetails, reset]);
   return (
@@ -85,7 +103,12 @@ const ComposterRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox label={"State"} value={value} onChangeText={onChange} />
+            <InputBox
+              label={"State"}
+              value={value}
+              onChangeText={onChange}
+              canEdit={editStateField}
+            />
           );
         }}
         name={"location.state"}
@@ -101,6 +124,7 @@ const ComposterRegistrationStep2 = () => {
               label={"District"}
               value={value}
               onChangeText={onChange}
+              canEdit={editDistrictField}
             />
           );
         }}
@@ -113,7 +137,12 @@ const ComposterRegistrationStep2 = () => {
         control={control}
         render={function ({ field: { value, onChange } }) {
           return (
-            <InputBox label={"City"} value={value} onChangeText={onChange} />
+            <InputBox
+              label={"City"}
+              value={value}
+              onChangeText={onChange}
+              canEdit={editCityField}
+            />
           );
         }}
         name={"location.city"}
@@ -130,6 +159,7 @@ const ComposterRegistrationStep2 = () => {
               value={value}
               onChangeText={onChange}
               keyboardType="name-phone-pad"
+              canEdit={editPincodeField}
             />
           );
         }}

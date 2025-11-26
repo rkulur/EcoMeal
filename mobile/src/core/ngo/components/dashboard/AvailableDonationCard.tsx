@@ -9,16 +9,21 @@ import {
   GRADIENT_PRIMARY,
   SPACING,
 } from "@/src/themes";
+import { AvailableDonation } from "@/src/types/donor";
 import getDonationName from "@/src/utils/getDonationName";
 import getMinimumExpiry from "@/src/utils/getMinExpiry";
 import { Ionicons } from "@expo/vector-icons";
+import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
-import { AvailableDonation } from "../../api/getAvailaleDonations";
 
 type AvailableDonationCardProps = {
   donation: AvailableDonation;
+  children?: ReactNode;
 };
-const AvailableDonationCard = ({ donation }: AvailableDonationCardProps) => {
+const AvailableDonationCard = ({
+  donation,
+  children,
+}: AvailableDonationCardProps) => {
   return (
     <View style={s.container}>
       <View
@@ -55,15 +60,7 @@ const AvailableDonationCard = ({ donation }: AvailableDonationCardProps) => {
           </PoppinsText>
         </View>
       </View>
-      <View style={{ flexDirection: "row", gap: 10 }}>
-        <OutlineButton onPress={() => null} text={"View Details"} />
-        <GradientButton
-          onPress={() => null}
-          text={"Accept"}
-          style={{ flex: 1 }}
-          gradient={GRADIENT_PRIMARY}
-        />
-      </View>
+      {children}
     </View>
   );
 };

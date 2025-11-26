@@ -24,7 +24,7 @@ export default function NgoRegistrationStep1() {
       email: "orpanhelp@gmail.com",
       password: "securepassword",
       confirmPassword: "securepassword",
-      phone: "8191929290",
+      phone: 9938884992,
       role: "ngo",
     },
   });
@@ -33,7 +33,6 @@ export default function NgoRegistrationStep1() {
 
   const onSubmit = (data: step1Type) => {
     setData(data);
-    alert("Step1 completed successfully");
     router.push("/register/ngo/step2");
   };
   return (
@@ -90,7 +89,7 @@ export default function NgoRegistrationStep1() {
             <InputBox
               label="Phone number"
               onChangeText={onChange}
-              value={value}
+              value={value.toString()}
             />
           )}
         />

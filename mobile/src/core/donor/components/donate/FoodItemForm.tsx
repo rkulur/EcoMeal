@@ -57,6 +57,7 @@ const FoodItemForm = ({
   onChange,
   count = 1,
   remove,
+  errors,
 }: FoodItemFormProps) => {
   const categoryOptions = [
     { label: "Plates", value: "plates" },

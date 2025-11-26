@@ -1,8 +1,9 @@
 import DefaultProfile from "@/src/components/DefaultProfile";
 import PoppinsText from "@/src/components/PoppinsText";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
+import { DonationHistoryListType } from "@/src/types/donor";
 import { formatDateTime } from "@/src/utils/formatDateTime";
-import { DonationHistoryListType } from "@/src/validation/donate.schema";
 import { StyleSheet, View } from "react-native";
 import Status from "../dashboard/Status";
 
@@ -10,6 +11,8 @@ type HistoryCardProps = {
   donation: DonationHistoryListType;
 };
 const HistoryCard = ({ donation }: HistoryCardProps) => {
+  const { showModal } = useAlertModal();
+
   return (
     <View style={s.container}>
       <View style={s.topHalf}>

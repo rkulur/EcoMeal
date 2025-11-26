@@ -1,16 +1,10 @@
 import { api, ApiResponse, ApiResult } from "@/src/api/axios";
-import { DonationType } from "@/src/validation/donate.schema";
+import { CreateDonationInput, DonationType } from "@/src/types/donor";
+import { FastifyError } from "@/src/types/fastify";
 import { isAxiosError } from "axios";
 
-export type FastifyError = {
-  code: string;
-  name: string;
-  message: string;
-  statusCode: number;
-};
-
 export async function postDonation(
-  data: DonationType,
+  data: CreateDonationInput,
 ): Promise<ApiResult<{ _id: string }>> {
   try {
     const res = await api.post<ApiResponse<{ _id: string } | FastifyError>>(
@@ -20,42 +14,47 @@ export async function postDonation(
     const { success, payload, message } = res.data;
 
     if (!success) {
-      const error = payload as FastifyError;
-      return { ok: false, error };
+      return { ok: false, error: payload as FastifyError, message };
     }
 
-    return { ok: true, data: payload as { _id: string } };
+    return { ok: true, data: payload as { _id: string }, message };
   } catch (error) {
-    if (isAxiosError(error)) return { ok: false, error: error };
+    if (isAxiosError(error))
+      return { ok: false, error: error, message: "Unexpected Error" };
 
     return {
       ok: false,
       error: new Error("Unexpected error", { cause: error }),
+      message: "Unexpected Error",
     };
   }
 }
 
 export async function getDonationById(
-  id: string,
+  path: string,
 ): Promise<ApiResult<DonationType>> {
   try {
-    const res = await api.get<ApiResponse<DonationType | FastifyError>>(
-      `/donor/donation/${id}`,
-    );
+    const res = await api.get<ApiResponse<DonationType | FastifyError>>(path);
     const { success, payload, message } = res.data;
 
     if (!success) {
       const error = payload as FastifyError;
-      return { ok: false, error };
+      return { ok: false, error, message };
     }
 
-    return { ok: true, data: payload as DonationType };
+    return { ok: true, data: payload as DonationType, message };
   } catch (error) {
-    if (isAxiosError(error)) return { ok: false, error: error };
+    if (isAxiosError<ApiResponse<DonationType>>(error))
+      return {
+        ok: false,
+        error: error,
+        message: error.response?.data.message ?? "Unexpected error",
+      };
 
     return {
       ok: false,
       error: new Error("Unexpected error", { cause: error }),
+      message: "Unexpected Error",
     };
   }
 }

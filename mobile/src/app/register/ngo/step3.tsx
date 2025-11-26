@@ -39,7 +39,6 @@ const NgoRegistrationStep3 = () => {
 
   const onSubmit = async (data: step3Type) => {
     setData3(data);
-    alert("Step 3 completed successfully");
     router.push("/register/ngo/step4");
   };
   return (

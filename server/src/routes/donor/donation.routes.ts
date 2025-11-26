@@ -7,6 +7,7 @@ import {
   updateDonation,
   getDonationById,
   getPartialDonationHistory,
+  confirmNGOPickup,
 } from "../../controllers/donor";
 
 export const createDonationSchema = {
@@ -96,25 +97,25 @@ export default async function donationRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/:id",
-    {
-      preHandler: [fastify.authenticate, fastify.isDonor],
-    },
+    { preHandler: [fastify.authenticate, fastify.isDonor] },
     getDonationById as RouteHandler,
   );
 
   fastify.patch(
     "/update/:id",
-    {
-      preHandler: [fastify.authenticate, fastify.isDonor],
-    },
+    { preHandler: [fastify.authenticate, fastify.isDonor] },
     updateDonation as RouteHandler,
   );
 
   fastify.patch(
     "/delete/:id",
-    {
-      preHandler: [fastify.authenticate, fastify.isDonor],
-    },
+    { preHandler: [fastify.authenticate, fastify.isDonor] },
     deleteDonation as RouteHandler,
+  );
+
+  fastify.patch(
+    "/confirm-pickup/:id",
+    { preHandler: [fastify.authenticate, fastify.isDonor] },
+    confirmNGOPickup as RouteHandler,
   );
 }

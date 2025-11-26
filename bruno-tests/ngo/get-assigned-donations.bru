@@ -1,11 +1,13 @@
 meta {
   name: Get Assigned Donations
   type: http
-  seq: 25
+  seq: 3
 }
 
 get {
   url: {{baseUrl}}/ngo/assigned-donations
+  body: none
+  auth: none
 }
 
 headers {

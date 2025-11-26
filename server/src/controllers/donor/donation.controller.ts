@@ -17,6 +17,7 @@ export async function createDonation(
       ...request.body,
       donor: donorId,
       isDeleted: false,
+      requestedCarehomes: [],
     };
     const newDonation = await Donation.create(donation);
     return reply
@@ -82,7 +83,7 @@ export async function getDonationById(
     const { id } = request.params;
     const donation = (await Donation.findOne({ _id: id, isDeleted: false })
       .populate("donor", "name email")
-      .populate("acceptedBy", "name email")) as DonationDoc;
+      .populate("acceptedBy", "name email location")) as DonationDoc;
 
     if (!donation) {
       return reply.code(404).send(errorResponse("Donation not found"));
@@ -194,3 +195,34 @@ export async function getDonorImpact(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {}
+
+export async function confirmNGOPickup(
+  request: FastifyRequest<{
+    Params: { id: string };
+  }>,
+  reply: FastifyReply,
+) {
+  const { id } = request.params;
+  const donorId = request.user.id;
+  try {
+    const donation = (await Donation.findOne({
+      _id: id,
+      donor: donorId,
+      isDeleted: false,
+    })) as DonationDoc;
+    if (!donation) {
+      return reply.code(404).send(errorResponse("Donation not found"));
+    }
+
+    if (donation.ngoPickedUp) {
+      donation.status = "picked_up";
+    }
+    donation.donorConfirmedPickup = true;
+    await donation.save();
+    return reply
+      .code(200)
+      .send(successResponse(donation, "Donation pickup confirmed!"));
+  } catch (err) {
+    return reply.code(500).send(errorResponse("Internal Server Error", err));
+  }
+}

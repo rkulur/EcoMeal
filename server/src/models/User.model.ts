@@ -17,13 +17,6 @@ export interface IUser extends Document {
     coordinates: number[];
   };
   profilePicture?: string;
-  verificationDocument?: string;
-  socialMedia?: {
-    website?: string;
-    facebook?: string;
-    instagram?: string;
-    twitter?: string;
-  };
   isVerified: boolean;
   isGoogleAuth: boolean;
   picture?: string;
@@ -70,16 +63,6 @@ const userSchema = new Schema<IUser>(
       pincode: { type: String, required: true },
     },
     profilePicture: String,
-    verificationDocument: {
-      type: String,
-      required: false,
-    },
-    socialMedia: {
-      website: String,
-      facebook: String,
-      instagram: String,
-      twitter: String,
-    },
     isVerified: {
       type: Boolean,
       default: false,

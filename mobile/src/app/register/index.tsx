@@ -37,7 +37,7 @@ const Register = () => {
           heading="Composter"
           subheading="Turn surplus food into compost sustainably."
           points={["Collect expired food", "Track your impact"]}
-          href={"/register/donor" as RelativePathString}
+          href={"/register/composter/step1" as RelativePathString}
         />
       </ScrollView>
     </SafeAreaView>

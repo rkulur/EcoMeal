@@ -1,15 +1,15 @@
 import PageHeader from "@/src/components/PageHeader";
+import SimpleAlertModal from "@/src/components/SimpleAlertModal";
 import Welcome from "@/src/components/Welcome";
-import getAvailableDonations, {
-  AvailableDonation,
-} from "@/src/core/ngo/api/getAvailaleDonations";
+import getAvailableDonations from "@/src/core/api";
 import AvailableDonations from "@/src/core/ngo/components/dashboard/AvailableDonations";
 import InfoSection from "@/src/core/ngo/components/dashboard/InfoSection";
 import OngoingPickups from "@/src/core/ngo/components/dashboard/OngoingPickups";
 import { HEIGHT, SPACING } from "@/src/themes";
+import { AvailableDonation } from "@/src/types/donor";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Dashboard = () => {
@@ -19,16 +19,29 @@ const Dashboard = () => {
     AvailableDonation[]
   >([]);
 
-  useEffect(() => {
-    const getDonations = async () => {
-      const res = await getAvailableDonations();
-      if (!res.ok) {
-        alert(res.error);
-        return;
-      }
-      setAvailableDonations(res.data.length ? res.data : []);
-    };
+  const [refreshing, setRefreshing] = useState(false);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      getDonations();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  const getDonations = async () => {
+    const res = await getAvailableDonations("ngo");
+    if (!res.ok) {
+      alert(res.error);
+      return;
+    }
+    setAvailableDonations(res.data.length ? res.data : []);
+  };
+
+  useEffect(() => {
     getDonations();
   }, []);
   return (
@@ -37,12 +50,15 @@ const Dashboard = () => {
       <ScrollView
         style={s.container}
         contentContainerStyle={{ paddingBottom: HEIGHT.tabBar + SPACING.page }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View style={s.subcontainer}>
           <Welcome username={"Ngo"} />
           <InfoSection />
-          <AvailableDonations donations={availableDonations} />
-          <OngoingPickups pickups={["one", "two"]} />
+          <AvailableDonations donations={availableDonations.slice(0, 5)} />
+          <OngoingPickups pickups={[]} />
         </View>
       </ScrollView>
     </SafeAreaView>
