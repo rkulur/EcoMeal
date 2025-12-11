@@ -1,35 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { Types } from "mongoose";
-import CareHome from "../../models/CareHome.model";
+import {
+  default as CareHome,
+  default as CareHomeModel,
+} from "../../models/CareHome.model";
 import { Donation, DonationDoc } from "../../models/Donation.model";
 import { FoodRequest, FoodRequestDoc } from "../../models/FoodRequest.model";
 import { errorResponse, successResponse } from "../../utils/responseWrapper";
-import CareHomeModel from "../../models/CareHome.model";
-
-export const markDonationReceived = async (
-  request: FastifyRequest<{ Params: { donationId: string } }>,
-  reply: FastifyReply,
-) => {
-  try {
-    const { donationId } = request.params;
-    const careHomeId = request.user.id;
-    const foodRequest = await FoodRequest.findOneAndUpdate(
-      { assignedDonation: donationId, requester: careHomeId },
-      { status: "delivered", deliveryDate: new Date() },
-      { new: true },
-    );
-    if (!foodRequest) {
-      return reply.code(404).send(errorResponse("Food request not found"));
-    }
-    await Donation.findByIdAndUpdate(donationId, {
-      status: "delivered",
-      deliveryDate: new Date(),
-    });
-    reply.send(successResponse(foodRequest, "Donation received successfully"));
-  } catch (err) {
-    reply.code(500).send(errorResponse("Internal server error", err));
-  }
-};
 
 export const approveDonation = async (
   request: FastifyRequest<{
@@ -172,17 +149,87 @@ export const getRequestedDonations = async (
   try {
     const carehomeId = request.user.id;
 
-    const requestedDonations = await Donation.find({
-      requestedCarehomes: {
-        $elemMatch: new Types.ObjectId(carehomeId),
+    // const requestedDonations = await Donation.find({
+    //   "requestedCarehomes.carehomeId": new Types.ObjectId(carehomeId),
+    // })
+    //   .sort({ createdAt: -1 })
+    //   .populate("acceptedBy", "name email profilePicture")
+    //   .lean();
+
+    const requestedDonations = await Donation.aggregate([
+      {
+        $match: {
+          "requestedCarehomes.carehomeId": new Types.ObjectId(carehomeId),
+        },
       },
-    })
-      .sort({ createdAt: -1 })
-      .populate("acceptedBy", "name email profilePicture")
-      .lean();
+      {
+        $addFields: {
+          requestedCarehomes: {
+            $filter: {
+              input: "$requestedCarehomes",
+              as: "rc",
+              cond: {
+                $eq: ["$$rc.carehomeId", new Types.ObjectId(carehomeId)],
+              },
+            },
+          },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "acceptedBy",
+          foreignField: "_id",
+          as: "acceptedBy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$acceptedBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "donor",
+          foreignField: "_id",
+          as: "donor",
+        },
+      },
+      {
+        $unwind: {
+          path: "$donor",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          "acceptedBy.name": 1,
+          "acceptedBy.email": 1,
+          "acceptedBy.profilePicture": 1,
+          "donor.name": 1,
+          "donor.profilePicture": 1,
+          "donor.location.state": 1,
+          "donor.location.district": 1,
+          "donor.location.city": 1,
+          "donor.location.pincode": 1,
+          foodItems: 1,
+          images: 1,
+          status: 1,
+          pickupAddress: 1,
+          pickupTimePreference: 1,
+          requestedCarehomes: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
 
     reply.send(successResponse(requestedDonations));
   } catch (err) {
+    console.log(err);
     reply
       .code(500)
       .send(errorResponse("Failed to fetch requested donations", err));
@@ -304,7 +351,7 @@ export const getOngoingDeliveries = async (
     const carehomeId = request.user.id;
 
     const ongoingDeliveries = await Donation.find({
-      assignedCarehome: new Types.ObjectId(carehomeId),
+      assignedCareHome: new Types.ObjectId(carehomeId),
     }).lean();
 
     reply.send(successResponse(ongoingDeliveries));
@@ -323,6 +370,7 @@ export const getPersonalDetails = async (
     const carehomeId = request.user.id;
 
     const carehome = await CareHomeModel.findById(carehomeId, {
+      _id: 1,
       name: 1,
       email: 1,
       phone: 1,
@@ -335,5 +383,28 @@ export const getPersonalDetails = async (
     reply
       .code(500)
       .send(errorResponse("Failed to fetch personal details", err));
+  }
+};
+
+export const markDonationAsReceived = async (
+  request: FastifyRequest<{ Params: { donationId: string } }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const { donationId } = request.params;
+    const donation = await Donation.findById(donationId);
+    if (!donation) {
+      return reply.code(404).send(errorResponse("Donation not found"));
+    }
+    donation.carehomeConfirmedDelivery = true;
+    if (donation.ngoDelivered && donation.carehomeConfirmedDelivery) {
+      donation.status = "delivered";
+    }
+    donation.save();
+    reply.send(
+      successResponse(donation, "Donation marked as delivered successfully"),
+    );
+  } catch (err) {
+    reply.code(500).send(errorResponse("Internal server error", err));
   }
 };

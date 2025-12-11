@@ -1,14 +1,5 @@
 import { PoppinsText } from "@/src/components";
-import GradientButton from "@/src/components/GradientButton";
-import OutlineButton from "@/src/components/OutlineButton";
-import {
-  BORDER_RADIUS,
-  COLORS,
-  FONT,
-  FONT_SIZE,
-  GRADIENT_PRIMARY,
-  SPACING,
-} from "@/src/themes";
+import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
 import { AvailableDonation } from "@/src/types/donor";
 import getDonationName from "@/src/utils/getDonationName";
 import getMinimumExpiry from "@/src/utils/getMinExpiry";

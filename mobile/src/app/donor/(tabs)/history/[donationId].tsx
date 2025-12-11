@@ -107,16 +107,19 @@ const DonationDetails = () => {
         }
       >
         <View style={{ gap: 20 }}>
-          <PoppinsHeadText style={{ textAlign: "center" }}>
-            Donation History
-          </PoppinsHeadText>
+          {/* <PoppinsHeadText style={{ textAlign: "center" }}> */}
+          {/*   Donation History */}
+          {/* </PoppinsHeadText> */}
           <Pressable
             style={{ flexDirection: "row", gap: 5 }}
-            onPress={() => router.back()}
+            onPress={() => {
+              router.replace("/donor/history");
+              router.back();
+            }}
           >
             <Ionicons name="arrow-back" size={20} />
             <PoppinsText style={{ fontFamily: FONT.SEMI_BOLD }}>
-              Back to history
+              Go back
             </PoppinsText>
           </Pressable>
           <View
@@ -233,7 +236,7 @@ const DonationDetails = () => {
                 fontSize: FONT_SIZE.xmedium,
               }}
             >
-              Recipient
+              Handler
             </PoppinsText>
             {donation?.acceptedBy ? (
               <View>
@@ -252,6 +255,50 @@ const DonationDetails = () => {
                     donation.acceptedBy.location?.district +
                     ", " +
                     donation.acceptedBy.location.state}
+                </PoppinsText>
+              </View>
+            ) : (
+              <PoppinsText>Donation not accepted yet</PoppinsText>
+            )}
+          </View>
+
+          <View
+            style={{
+              borderWidth: 1,
+              borderColor: COLORS.outlineGray,
+              paddingHorizontal: SPACING.cardHorizontal / 2,
+              paddingVertical: SPACING.cardVertical / 2,
+              borderRadius: BORDER_RADIUS,
+              gap: 10,
+            }}
+          >
+            <PoppinsText
+              style={{
+                fontFamily: FONT.SEMI_BOLD,
+                fontSize: FONT_SIZE.xmedium,
+              }}
+            >
+              Recipient
+            </PoppinsText>
+            {donation?.assignedCareHome ? (
+              <View>
+                <DefaultProfile
+                  src={donation.assignedCareHome.profilePicture}
+                />
+                <PoppinsText
+                  style={{
+                    fontSize: FONT_SIZE.medium,
+                    fontFamily: FONT.SEMI_BOLD,
+                  }}
+                >
+                  {donation.assignedCareHome.name}
+                </PoppinsText>
+                <PoppinsText>
+                  {donation.assignedCareHome.location?.city +
+                    ", " +
+                    donation.assignedCareHome.location?.district +
+                    ", " +
+                    donation.assignedCareHome.location.state}
                 </PoppinsText>
               </View>
             ) : (

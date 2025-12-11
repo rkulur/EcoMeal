@@ -2,11 +2,14 @@ import PageHeader from "@/src/components/PageHeader";
 import SimpleAlertModal from "@/src/components/SimpleAlertModal";
 import Welcome from "@/src/components/Welcome";
 import getAvailableDonations from "@/src/core/api";
+import getOngoingPickups from "@/src/core/ngo/api/getOngoingPickups";
+import getPastDonations from "@/src/core/ngo/api/getPastDonations";
 import AvailableDonations from "@/src/core/ngo/components/dashboard/AvailableDonations";
 import InfoSection from "@/src/core/ngo/components/dashboard/InfoSection";
 import OngoingPickups from "@/src/core/ngo/components/dashboard/OngoingPickups";
+import PastDonation from "@/src/core/ngo/components/dashboard/PastDonations";
 import { HEIGHT, SPACING } from "@/src/themes";
-import { AvailableDonation } from "@/src/types/donor";
+import { AvailableDonation, DonationType } from "@/src/types/donor";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
@@ -18,6 +21,10 @@ const Dashboard = () => {
   const [availableDonations, setAvailableDonations] = useState<
     AvailableDonation[]
   >([]);
+  const [ongoingDonations, setOngoingDonations] = useState<AvailableDonation[]>(
+    [],
+  );
+  const [pastDonations, setPastDonations] = useState<AvailableDonation[]>([]);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -25,6 +32,8 @@ const Dashboard = () => {
     setRefreshing(true);
     try {
       getDonations();
+      getOngoingDonations();
+      getPDonations();
     } catch (error) {
       console.error("Error refreshing data:", error);
     } finally {
@@ -41,8 +50,28 @@ const Dashboard = () => {
     setAvailableDonations(res.data.length ? res.data : []);
   };
 
+  const getOngoingDonations = async () => {
+    const res = await getOngoingPickups();
+    if (!res.ok) {
+      alert(res.error);
+      return;
+    }
+    setOngoingDonations(res.data.length ? res.data : []);
+  };
+
+  const getPDonations = async () => {
+    const res = await getPastDonations();
+    if (!res.ok) {
+      alert(res.error);
+      return;
+    }
+    setPastDonations(res.data.length ? res.data : []);
+  };
+
   useEffect(() => {
+    getOngoingDonations();
     getDonations();
+    getPDonations();
   }, []);
   return (
     <SafeAreaView style={{ backgroundColor: "white" }}>
@@ -57,8 +86,9 @@ const Dashboard = () => {
         <View style={s.subcontainer}>
           <Welcome username={"Ngo"} />
           <InfoSection />
-          <AvailableDonations donations={availableDonations.slice(0, 5)} />
-          <OngoingPickups pickups={[]} />
+          <AvailableDonations donations={availableDonations} />
+          <OngoingPickups pickups={ongoingDonations} />
+          <PastDonation pickups={pastDonations} />
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -6,9 +6,12 @@ import PageHeader from "@/src/components/PageHeader";
 import Welcome from "@/src/components/Welcome";
 import getIncomingDonations from "@/src/core/carehome/api/getIncomingDonations";
 import getCarehomeDetails from "@/src/core/carehome/api/getPersonalDetails";
+import getRequestedDonations from "@/src/core/carehome/api/getRequestedDonations";
+import requestDonation from "@/src/core/carehome/api/requestDonation";
 import ImpactReports from "@/src/core/carehome/components/ImpactReports";
-import IncomingFoodCard from "@/src/core/carehome/components/IncomingFoodCard";
+import RequestedDonationCard from "@/src/core/carehome/components/RequestedDonationCard";
 import AvailableDonationCard from "@/src/core/ngo/components/dashboard/AvailableDonationCard";
+import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import {
   BORDER_RADIUS,
   COLORS,
@@ -18,6 +21,7 @@ import {
 } from "@/src/themes";
 import { PersonalDetails } from "@/src/types/carehome";
 import { AvailableDonation, DonationType } from "@/src/types/donor";
+import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,14 +31,19 @@ const Dashboard = () => {
     useState<AvailableDonation[]>();
   const [personalDetails, setPersonalDetails] = useState<PersonalDetails>();
   const [requestedDonations, setRequestedDonations] =
-    useState<AvailableDonation[]>();
+    useState<DonationType[]>();
 
   const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
+
+  const { showModal, isVisible } = useAlertModal();
+  const [reqSuccess, setReqSuccess] = useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
       getDonationsNearby();
+      getReqDonations();
     } catch (error) {
       console.error("Error refreshing data:", error);
     } finally {
@@ -52,6 +61,16 @@ const Dashboard = () => {
     setIncomingDonations(res.data);
   };
 
+  const getReqDonations = async () => {
+    const res = await getRequestedDonations();
+    if (!res.ok) {
+      alert(res.message);
+      console.log(res.error.cause);
+      return;
+    }
+    setRequestedDonations(res.data);
+  };
+
   const getPersonalDetails = async () => {
     const res = await getCarehomeDetails();
     if (!res.ok) {
@@ -62,10 +81,24 @@ const Dashboard = () => {
     setPersonalDetails(res.data);
   };
 
+  const handleDonationRequest = async (donationId: string) => {
+    const res = await requestDonation(donationId);
+    if (!res.ok) {
+      alert(res.message);
+      console.log(res.error);
+    }
+    showModal(
+      "Request successful",
+      "Donation has been requested successfully and will be shown to the NGOs",
+    );
+    setReqSuccess(true);
+  };
+
   useEffect(() => {
     getDonationsNearby();
     getPersonalDetails();
-  }, []);
+    getReqDonations();
+  }, [reqSuccess]);
 
   return (
     <SafeAreaView style={{ backgroundColor: "white" }}>
@@ -87,9 +120,16 @@ const Dashboard = () => {
               {incomingDonations?.map((donation, idx) => (
                 <AvailableDonationCard key={idx} donation={donation}>
                   <View style={{ flexDirection: "row", gap: 10 }}>
-                    <OutlineButton onPress={() => null} text={"View Details"} />
+                    <OutlineButton
+                      onPress={() =>
+                        router.push(`/carehome/requests/${donation._id}`)
+                      }
+                      text={"View Details"}
+                    />
                     <GradientButton
-                      onPress={() => null}
+                      onPress={() => {
+                        handleDonationRequest(donation._id);
+                      }}
                       text={"Request"}
                       style={{ flex: 1 }}
                       gradient={GRADIENT_PRIMARY}
@@ -125,22 +165,21 @@ const Dashboard = () => {
             subheading={"Track the status of your requested donations"}
           >
             <View>
-              {incomingDonations?.map((donation, idx) => (
-                <AvailableDonationCard key={idx} donation={donation}>
+              {requestedDonations?.map((donation, idx) => (
+                <RequestedDonationCard key={idx} donation={donation}>
                   <View style={{ flexDirection: "row", gap: 10 }}>
-                    <OutlineButton onPress={() => null} text={"View Details"} />
-                    <GradientButton
-                      onPress={() => null}
-                      text={"Request"}
-                      style={{ flex: 1 }}
-                      gradient={GRADIENT_PRIMARY}
+                    <OutlineButton
+                      onPress={() =>
+                        router.push(`carehome/requests/${donation._id}`)
+                      }
+                      text={"View Donation Details"}
                     />
                   </View>
-                </AvailableDonationCard>
+                </RequestedDonationCard>
               ))}
 
-              {!incomingDonations ||
-                (!incomingDonations.length && (
+              {!requestedDonations ||
+                (!requestedDonations.length && (
                   <View
                     style={{
                       gap: 10,
@@ -154,7 +193,7 @@ const Dashboard = () => {
                     <PoppinsText
                       style={{ textAlign: "center", color: COLORS.outlineGray }}
                     >
-                      No Incoming Deliveries
+                      No donations requested yet!
                     </PoppinsText>
                   </View>
                 ))}

@@ -6,7 +6,7 @@ import {
   getPersonalDetails,
   getRequestHistory,
   getRequestedDonations,
-  markDonationReceived,
+  markDonationAsReceived,
   rejectDonation,
   requestDonation,
 } from "../../controllers/carehome";
@@ -42,7 +42,7 @@ export default async function carehomeRoutes(fastify: FastifyInstance) {
   fastify.patch(
     "/donation-received/:donationId",
     { preHandler: [fastify.authenticate, fastify.isCareHome] },
-    markDonationReceived as RouteHandler,
+    markDonationAsReceived as RouteHandler,
   );
 
   fastify.get(

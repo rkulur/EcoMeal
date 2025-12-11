@@ -11,7 +11,10 @@ type StatusProps = {
     | "delivered"
     | "expired"
     | "cancelled"
-    | "available";
+    | "available"
+    | "requested"
+    | "approved"
+    | "rejected";
 };
 const Status = ({ status = "pending" }: StatusProps) => {
   const clr = STATUS_COLORS[status];

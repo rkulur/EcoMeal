@@ -24,6 +24,9 @@ export const STATUS_COLORS = {
   expired: { color: "#A1893F", bg: "#FFF8E3" },
   cancelled: { color: "#D02626", bg: "#FFC1C1" },
   available: { color: "#56C747", bg: "#EAFFE7" },
+  requested: { color: "#E6B000", bg: "#FFF8E3" },
+  approved: { color: "#56C747", bg: "#EAFFE7" },
+  rejected: { color: "#D02626", bg: "#FFC1C1" },
 };
 export const SPACING = {
   page: 24,
@@ -35,7 +38,7 @@ export const FONT_SIZE = {
   large: 22,
   xmedium: 18,
   medium: 16,
-  small: 12,
+  small: 14,
   xsmall: 10,
   xxlarge: 32,
 };
@@ -56,7 +59,7 @@ export const HEIGHT = {
 
 export const LINE_HEIGHT = {
   heading: 35,
-  impactCard: 25,
+  impactCard: 28,
 };
 
 export const BORDER_RADIUS = 8;

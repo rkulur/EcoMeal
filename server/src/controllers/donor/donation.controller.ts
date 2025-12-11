@@ -62,7 +62,7 @@ export async function getPartialDonationHistory(
 
     const history = await Donation.find(
       { donor: userId, isDeleted: false },
-      { foodItems: 1, createdAt: 1, acceptedBy: 1, status: 1 },
+      { foodItems: 1, createdAt: 1, acceptedBy: 1, status: 1, ngoPickedUp: 1 },
     )
       .populate("acceptedBy", "name profilePicture location")
       .sort({ createdAt: -1 });
@@ -82,8 +82,12 @@ export async function getDonationById(
   try {
     const { id } = request.params;
     const donation = (await Donation.findOne({ _id: id, isDeleted: false })
-      .populate("donor", "name email")
-      .populate("acceptedBy", "name email location")) as DonationDoc;
+      .populate("donor", "name email profilePicture location")
+      .populate("acceptedBy", "name email profilePicture location")
+      .populate(
+        "assignedCareHome",
+        "name email profilePicture location",
+      )) as DonationDoc;
 
     if (!donation) {
       return reply.code(404).send(errorResponse("Donation not found"));

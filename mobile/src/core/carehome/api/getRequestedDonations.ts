@@ -3,12 +3,12 @@ import { DonationType } from "@/src/types/donor";
 import { FastifyError } from "@/src/types/fastify";
 import { isAxiosError } from "axios";
 
-export default async function getRequestHistory(): Promise<
+export default async function getRequestedDonations(): Promise<
   ApiResult<DonationType[]>
 > {
   try {
     const res = await api.get<ApiResponse<DonationType[] | FastifyError>>(
-      "/carehome/requested-deliveries",
+      "/carehome/requested-donations",
     );
     const { success, payload, message } = res.data;
 

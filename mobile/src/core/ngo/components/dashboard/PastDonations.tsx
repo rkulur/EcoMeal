@@ -1,19 +1,19 @@
 import { PoppinsText } from "@/src/components";
+import { BORDER_RADIUS, COLORS, SPACING } from "@/src/themes";
+import { AvailableDonation } from "@/src/types/donor";
 import { StyleSheet, View } from "react-native";
 import OngoingPickupsCard from "./OngoingPickupsCard";
 import Subheading from "./Subheading";
-import { BORDER_RADIUS, COLORS, SPACING } from "@/src/themes";
-import { AvailableDonation, DonationType } from "@/src/types/donor";
 
-type OngoingPickupsProps = {
+type PastDonationProps = {
   pickups: AvailableDonation[];
 };
 
-const OngoingPickups = ({ pickups }: OngoingPickupsProps) => {
+const PastDonation = ({ pickups }: PastDonationProps) => {
   if (!pickups.length) {
     return (
       <View style={s.container}>
-        <Subheading title={"Ongoing Pickups"} />
+        <Subheading title={"Past Donations"} />
         <View
           style={{
             gap: 10,
@@ -27,7 +27,7 @@ const OngoingPickups = ({ pickups }: OngoingPickupsProps) => {
           <PoppinsText
             style={{ textAlign: "center", color: COLORS.outlineGray }}
           >
-            No Ongoing Pickups
+            No Past Donations
           </PoppinsText>
         </View>
       </View>
@@ -35,19 +35,19 @@ const OngoingPickups = ({ pickups }: OngoingPickupsProps) => {
   }
   return (
     <View style={s.container}>
-      <Subheading title={"Ongoing Pickups"} />
+      <Subheading title={"Past Donations"} />
       {pickups ? (
         pickups.map((pickup, idx) => (
           <OngoingPickupsCard key={idx} donation={pickup} />
         ))
       ) : (
-        <PoppinsText>No ongoing pickups</PoppinsText>
+        <PoppinsText>No past donations</PoppinsText>
       )}
     </View>
   );
 };
 
-export default OngoingPickups;
+export default PastDonation;
 
 const s = StyleSheet.create({
   container: {

@@ -16,7 +16,16 @@ export type FoodItem = {
 
 export type DonationType = {
   _id: string;
-  donor: string;
+  donor: {
+    name: string;
+    profilePicture: string;
+    location: {
+      state: string;
+      district: string;
+      city: string;
+      pincode: string;
+    };
+  };
 
   foodItems: FoodItem[];
 
@@ -62,8 +71,18 @@ export type DonationType = {
       pincode: string;
     };
   };
-  assignedCareHome?: string;
+  assignedCareHome?: {
+    name: string;
+    profilePicture: string;
+    location: {
+      state: string;
+      district: string;
+      city: string;
+      pincode: string;
+    };
+  };
   assignedRequest?: string;
+  requestedCarehomes?: RequestedCarehome[];
 
   pickupDate?: Date;
   deliveryDate?: Date;
@@ -72,6 +91,8 @@ export type DonationType = {
   createdAt?: Date;
   updatedAt?: Date;
   ngoPickedUp: boolean;
+  ngoDelivered?: boolean;
+  carehomeConfirmedDelivery?: boolean;
 };
 
 export type CreateDonationInput = {
@@ -164,7 +185,10 @@ export interface AvailableDonation {
   donationCoordinates: [number, number];
   requestedCarehomes?: RequestedCarehome[];
   pickupTimePreference?: Date;
-  ngoPickedUp: boolean;
+  ngoPickedUp?: boolean;
+  donorConfirmedPickup?: boolean;
+  ngoDelivered?: boolean;
+  carehomeConfirmedDelivery?: boolean;
 }
 
 export type RequestedCarehome = {

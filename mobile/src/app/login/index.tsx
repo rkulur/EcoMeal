@@ -20,7 +20,7 @@ const Login = () => {
   const { control, handleSubmit } = useForm<loginType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "carehome@gmail.com",
+      email: "ngo@gmail.com",
       password: "securepassword",
     },
   });

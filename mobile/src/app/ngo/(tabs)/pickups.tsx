@@ -1,23 +1,22 @@
-import { PoppinsHeadText, PoppinsText } from "@/src/components";
+import { PoppinsText } from "@/src/components";
 import GradientButton from "@/src/components/GradientButton";
-import OutlineButton from "@/src/components/OutlineButton";
 import PageHeader from "@/src/components/PageHeader";
-import SimpleAlertModal from "@/src/components/SimpleAlertModal";
+import getAssignedDonations from "@/src/core/ngo/api/getAssignedDonations";
 import getPickedUpDonations from "@/src/core/ngo/api/getPickedUpDonations";
+import markAsDelivered from "@/src/core/ngo/api/markAsDelivered";
 import setDonationExpiry from "@/src/core/ngo/api/setDonationExpiry";
 import AvailableDonationCard from "@/src/core/ngo/components/dashboard/AvailableDonationCard";
 import Subheading from "@/src/core/ngo/components/dashboard/Subheading";
+import CarehomeCard from "@/src/core/ngo/components/pickups/CarehomeCard";
 import { useAlertModal } from "@/src/hooks/AlertModalContext";
 import {
   BORDER_RADIUS,
   COLORS,
   GRADIENT_PRIMARY,
-  GRADIENT_SECONDARY,
-  GRADIENT_SECONDARY_REVERSED,
   HEIGHT,
   SPACING,
 } from "@/src/themes";
-import { AvailableDonation, DonationType } from "@/src/types/donor";
+import { AvailableDonation } from "@/src/types/donor";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -51,6 +50,70 @@ const NoPickedUpDonations = () => {
 type PickedUpDonationType = {
   donations: AvailableDonation[];
 };
+
+const AssignedDonations = ({ donations }: PickedUpDonationType) => {
+  const { showModal } = useAlertModal();
+  const handleDeliveryMark = (donationId: string) => {
+    Alert.alert(
+      "Confirm Delivery",
+      "Are you sure the donation has been delivered ?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "default",
+          onPress: async () => {
+            const res = await markAsDelivered(donationId);
+            if (!res.ok) {
+              console.log(res.error);
+              showModal("Something went wrong!", res.message ?? res.error);
+              return;
+            }
+            showModal(
+              "Donation Marked as Delivered",
+              "You have successfully marked this donation as delivered.",
+            );
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
+  return donations.map((donation, idx) => (
+    <AvailableDonationCard key={idx} donation={donation}>
+      {!donation.ngoDelivered && (
+        <GradientButton
+          onPress={() => {
+            handleDeliveryMark(donation._id);
+          }}
+          text={"Mark as Delivered"}
+          style={{ flex: 1 }}
+          gradient={GRADIENT_PRIMARY}
+        />
+      )}
+
+      {!donation.carehomeConfirmedDelivery && donation.ngoDelivered && (
+        <PoppinsText
+          style={{
+            backgroundColor: COLORS.bgGreen,
+            color: COLORS.green,
+            padding: 4,
+            borderRadius: BORDER_RADIUS,
+            textAlign: "center",
+            marginTop: 15,
+          }}
+        >
+          Carehome confirmation for delivery is pending
+        </PoppinsText>
+      )}
+    </AvailableDonationCard>
+  ));
+};
+
 const PickedUpDonations = ({ donations }: PickedUpDonationType) => {
   const { showModal } = useAlertModal();
   const handleExpiry = (donationId: string) => {
@@ -87,31 +150,13 @@ const PickedUpDonations = ({ donations }: PickedUpDonationType) => {
     <AvailableDonationCard key={idx} donation={donation}>
       <View style={s.carehomeContainer}>
         {donation.requestedCarehomes?.map((carehome, idx) => (
-          <View key={idx} style={s.card}>
-            <PoppinsText style={s.name}>{carehome.name}</PoppinsText>
-            <PoppinsText style={s.details}>📧 {carehome.email}</PoppinsText>
-            <PoppinsText style={s.details}>📞 {carehome.phone}</PoppinsText>
-            <PoppinsText style={s.details}>
-              Requested: {new Date(carehome.requestedAt).toLocaleString()}
-            </PoppinsText>
-
-            <OutlineButton
-              text="Assign"
-              onPress={() => console.log("Assigned to:", carehome.name)}
-              style={s.button}
-            />
-          </View>
+          <CarehomeCard
+            carehome={carehome}
+            key={idx}
+            donationId={donation._id}
+          />
         ))}
       </View>
-      {/* <View style={{ flexDirection: "row", gap: 10 }}> */}
-      {/*   <OutlineButton onPress={() => null} text={"View Details"} /> */}
-      {/*   <GradientButton */}
-      {/*     onPress={() => null} */}
-      {/*     text={"Accept"} */}
-      {/*     style={{ flex: 1 }} */}
-      {/*     gradient={GRADIENT_PRIMARY} */}
-      {/*   /> */}
-      {/* </View> */}
 
       <GradientButton
         onPress={() => handleExpiry(donation._id)}
@@ -128,6 +173,9 @@ const Pickups = () => {
   const [pickedUpDonations, setPickedUpDonations] = useState<
     AvailableDonation[]
   >([]);
+  const [assignedDonations, setAssignedDonations] = useState<
+    AvailableDonation[]
+  >([]);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -135,6 +183,7 @@ const Pickups = () => {
     setRefreshing(true);
     try {
       getPUDonations();
+      getAssDonations();
     } catch (error) {
       console.error("Error refreshing data:", error);
     } finally {
@@ -142,18 +191,28 @@ const Pickups = () => {
     }
   }, []);
 
-  const getPUDonations = async () => {
+  async function getPUDonations() {
     const res = await getPickedUpDonations();
     if (!res.ok) {
       alert(res.error);
       return;
     }
     setPickedUpDonations(res.data.length ? res.data : []);
-  };
+  }
 
+  async function getAssDonations() {
+    const res = await getAssignedDonations();
+    if (!res.ok) {
+      alert(res.error);
+      return;
+    }
+    setAssignedDonations(res.data.length ? res.data : []);
+  }
   useEffect(() => {
     getPUDonations();
+    getAssDonations();
   }, [donationAssigned]);
+
   return (
     <>
       <SafeAreaView style={{ backgroundColor: "white", height: "100%" }}>
@@ -168,10 +227,14 @@ const Pickups = () => {
           }
         >
           <Subheading title="Picked Up Donations" />
-          {!pickedUpDonations || !pickedUpDonations.length ? (
+          {(!pickedUpDonations || !pickedUpDonations.length) &&
+          (!assignedDonations || !assignedDonations.length) ? (
             <NoPickedUpDonations />
           ) : (
-            <PickedUpDonations donations={pickedUpDonations} />
+            <>
+              <PickedUpDonations donations={pickedUpDonations} />
+              <AssignedDonations donations={assignedDonations} />
+            </>
           )}
         </ScrollView>
       </SafeAreaView>
@@ -197,7 +260,7 @@ const s = StyleSheet.create({
   card: {
     borderWidth: 1,
     borderColor: COLORS.outlineGray,
-    borderRadius: BORDER_RADIUS, // 8px radius (already defined in your theme)
+    borderRadius: BORDER_RADIUS,
     padding: SPACING.cardVertical / 2,
     backgroundColor: "white",
     gap: 4,
@@ -211,5 +274,11 @@ const s = StyleSheet.create({
   },
   button: {
     marginTop: 8,
+  },
+  modal: {
+    paddingVertical: SPACING.cardVertical,
+    paddingHorizontal: SPACING.cardHorizontal,
+    paddingTop: SPACING.cardVertical * 2,
+    gap: 15,
   },
 });

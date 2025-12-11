@@ -1,16 +1,14 @@
 import { api, ApiResponse, ApiResult } from "@/src/api/axios";
 import { isAxiosError } from "axios";
 import { FastifyError } from "@/src/types/fastify";
-import { DonationType } from "@/src/types/donor";
+import { AvailableDonation } from "@/src/types/donor";
 
-export default async function assignDonation(
-  donationId: string,
-  carehomeId: string,
-): Promise<ApiResult<DonationType>> {
+export default async function getOngoingPickups(): Promise<
+  ApiResult<AvailableDonation[]>
+> {
   try {
-    const res = await api.post<ApiResponse<DonationType | FastifyError>>(
-      `/ngo/assign-donation/${donationId}`,
-      { carehomeId },
+    const res = await api.get<ApiResponse<AvailableDonation[] | FastifyError>>(
+      `/ngo/assigned-donations`,
     );
     const { success, payload, message } = res.data;
 
@@ -18,7 +16,7 @@ export default async function assignDonation(
       return { ok: false, error: payload as FastifyError, message };
     }
 
-    return { ok: true, data: payload as DonationType, message };
+    return { ok: true, data: payload as AvailableDonation[], message };
   } catch (error) {
     if (isAxiosError(error))
       return { ok: false, error, message: "Unexpected error occured" };

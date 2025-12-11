@@ -98,6 +98,8 @@ const donationSchema = new mongoose.Schema(
     isDeleted: { type: Boolean, default: false },
     ngoPickedUp: { type: Boolean, default: false },
     donorConfirmedPickup: { type: Boolean, default: false },
+    ngoDelivered: { type: Boolean, default: false },
+    carehomeConfirmedDelivery: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -1,17 +1,56 @@
 import DefaultProfile from "@/src/components/DefaultProfile";
 import PoppinsText from "@/src/components/PoppinsText";
 import { useAlertModal } from "@/src/hooks/AlertModalContext";
-import { BORDER_RADIUS, COLORS, FONT, FONT_SIZE, SPACING } from "@/src/themes";
+import {
+  BORDER_RADIUS,
+  COLORS,
+  FONT,
+  FONT_SIZE,
+  GRADIENT_PRIMARY,
+  SPACING,
+} from "@/src/themes";
 import { DonationHistoryListType } from "@/src/types/donor";
 import { formatDateTime } from "@/src/utils/formatDateTime";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import Status from "../dashboard/Status";
+import GradientButton from "@/src/components/GradientButton";
+import confirmPickup from "../../api/confirmPickup";
 
 type HistoryCardProps = {
   donation: DonationHistoryListType;
 };
 const HistoryCard = ({ donation }: HistoryCardProps) => {
   const { showModal } = useAlertModal();
+
+  const handleConfirmPickup = (donationId: string) => {
+    Alert.alert(
+      "Confirm Pickup",
+      "Are you sure the donation has been picked up?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "default",
+          onPress: async () => {
+            const res = await confirmPickup(donationId);
+            if (!res.ok) {
+              console.log(res.error);
+              showModal("Something went wrong!", res.message ?? res.error);
+              return;
+            }
+            showModal(
+              "Pickup Confirmed!",
+              "The donation has been marked as picked up. Thank you for helping us reduce food waste and support those in need!",
+            );
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   return (
     <View style={s.container}>
@@ -66,6 +105,14 @@ const HistoryCard = ({ donation }: HistoryCardProps) => {
         )}
       </View>
       <PoppinsText>{formatDateTime(new Date(donation.createdAt!))}</PoppinsText>
+      {donation?.ngoPickedUp &&
+        ["pending", "accepted"].includes(donation.status) && (
+          <GradientButton
+            onPress={() => handleConfirmPickup(donation._id)}
+            text={"Confirm Pickup ?"}
+            gradient={GRADIENT_PRIMARY}
+          />
+        )}
     </View>
   );
 };

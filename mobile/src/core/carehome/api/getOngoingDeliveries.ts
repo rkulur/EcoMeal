@@ -3,7 +3,7 @@ import { DonationType } from "@/src/types/donor";
 import { FastifyError } from "@/src/types/fastify";
 import { isAxiosError } from "axios";
 
-export default async function getRequestHistory(): Promise<
+export default async function getOngoingDeliveries(): Promise<
   ApiResult<DonationType[]>
 > {
   try {

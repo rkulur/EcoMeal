@@ -16,8 +16,8 @@ import {
 } from "@/src/themes";
 import { AvailableDonation } from "@/src/types/donor";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Requests = () => {
@@ -25,6 +25,7 @@ const Requests = () => {
     useState<AvailableDonation[]>();
   const router = useRouter();
   const [foodRequested, setFoodRequested] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleViewDetails = (donationId: string) => {
     router.push(`/carehome/requests/${donationId}`);
@@ -52,6 +53,17 @@ const Requests = () => {
     }
   }, [foodRequested]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      getDonations();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   async function getDonations() {
     const res = await getAvailableDonations("carehome");
     if (!res.ok) {
@@ -75,6 +87,9 @@ const Requests = () => {
             paddingBottom: HEIGHT.tabBar + SPACING.page,
             gap: 10,
           }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
           <PoppinsHeadText style={{ textAlign: "center" }}>
             Request Food

@@ -4,11 +4,15 @@ import {
   claimDonation,
   getAssignedDonations,
   getAvailableDonations,
+  getCarehomeDetailsById,
   getNGOImpact,
+  getOngoingDonations,
+  getPastDonations,
   getPendingDonations,
   getPickedUpDonations,
   getSuggestedCareHomes,
   markAsPickedUp,
+  markDonationAsDelivered,
   setDonationExpiry,
   updateDeliveryStatus,
 } from "../../controllers/ngo";
@@ -35,16 +39,13 @@ export default async function ngoRoutes(fastify: FastifyInstance) {
     { preHandler: [fastify.authenticate, fastify.isNgo] },
     getSuggestedCareHomes as RouteHandler,
   );
+
   fastify.post(
     "/assign-donation/:donationId",
     { preHandler: [fastify.authenticate, fastify.isNgo] },
     assignDonation as RouteHandler,
   );
-  fastify.get(
-    "/assigned-donations",
-    { preHandler: [fastify.authenticate, fastify.isNgo] },
-    getAssignedDonations as RouteHandler,
-  );
+
   fastify.patch(
     "/update-status/:donationId",
     { preHandler: [fastify.authenticate, fastify.isNgo] },
@@ -72,5 +73,35 @@ export default async function ngoRoutes(fastify: FastifyInstance) {
     "/picked-up-donations",
     { preHandler: [fastify.authenticate, fastify.isNgo] },
     getPickedUpDonations as RouteHandler,
+  );
+
+  fastify.get(
+    "/ongoing-donations",
+    { preHandler: [fastify.authenticate, fastify.isNgo] },
+    getOngoingDonations as RouteHandler,
+  );
+
+  fastify.get(
+    "/assigned-donations",
+    { preHandler: [fastify.authenticate, fastify.isNgo] },
+    getAssignedDonations as RouteHandler,
+  );
+
+  fastify.get(
+    "/carehome-details/:carehomeId",
+    { preHandler: [fastify.authenticate, fastify.isNgo] },
+    getCarehomeDetailsById as RouteHandler,
+  );
+
+  fastify.patch(
+    "/mark-as-delivered/:donationId",
+    { preHandler: [fastify.authenticate, fastify.isNgo] },
+    markDonationAsDelivered as RouteHandler,
+  );
+
+  fastify.get(
+    "/past-donations",
+    { preHandler: [fastify.authenticate, fastify.isNgo] },
+    getPastDonations as RouteHandler,
   );
 }

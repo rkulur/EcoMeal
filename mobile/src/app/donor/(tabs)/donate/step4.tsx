@@ -90,41 +90,15 @@ const DonationStep4 = () => {
                 Food Details
               </PoppinsText>
             </View>
-            <View style={{ flexDirection: "row" }}>
-              <PoppinsText
-                style={{
-                  flex: 2,
-                  textAlign: "center",
-                }}
-              >
-                Item No
-              </PoppinsText>
-              <PoppinsText
-                style={{
-                  flex: 3,
-                  textAlign: "center",
-                }}
-              >
-                Food Item
-              </PoppinsText>
-              <PoppinsText
-                style={{
-                  flex: 3,
-                  textAlign: "center",
-                }}
-              >
-                Quantity
-              </PoppinsText>
-            </View>
             {step1Data.foodItems?.map((item, idx) => (
               <View style={{ flexDirection: "row" }} key={idx}>
-                <PoppinsText style={{ flex: 2, textAlign: "center" }}>
-                  {idx + 1}
+                <PoppinsText style={{ flex: 1, textAlign: "center" }}>
+                  {idx + 1 + "."}
                 </PoppinsText>
-                <PoppinsText style={{ flex: 3, textAlign: "center" }}>
+                <PoppinsText style={{ flex: 3, textAlign: "left" }}>
                   {item.name}
                 </PoppinsText>
-                <PoppinsText style={{ flex: 3, textAlign: "center" }}>
+                <PoppinsText style={{ flex: 3, textAlign: "left" }}>
                   {item.quantity + " " + item.unit}
                 </PoppinsText>
               </View>
@@ -144,10 +118,9 @@ const DonationStep4 = () => {
                 Pickup Location
               </PoppinsText>
             </View>
-            <PoppinsText style={{ textDecorationLine: "underline" }}>
-              Address
+            <PoppinsText style={{ paddingLeft: 15 }}>
+              {step2Data.pickupAddress?.address}
             </PoppinsText>
-            <PoppinsText>{step2Data.pickupAddress?.address}</PoppinsText>
           </LinearGradient>
           <LinearGradient colors={GRADIENT_SECONDARY} style={s.subcontainer}>
             <View

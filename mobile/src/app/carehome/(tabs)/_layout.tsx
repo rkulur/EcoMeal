@@ -2,7 +2,7 @@ import TabBar from "@/src/components/TabBar";
 import FoodRequestContextProvider from "@/src/core/carehome/hooks/requestFoodContext";
 import { COLORS, FONT, FONT_SIZE } from "@/src/themes";
 import { Tabs } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 
 const DonorTabsLayout = () => {
   return (

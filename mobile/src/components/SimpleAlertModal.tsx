@@ -34,10 +34,14 @@ const SimpleAlertModal = () => {
             fontSize: FONT_SIZE.xlarge,
             fontFamily: FONT.BOLD,
             lineHeight: LINE_HEIGHT.heading,
+            textAlign: "center",
+            paddingHorizontal: 4,
           }}
           text={heading}
         />
-        <PoppinsText style={{ textAlign: "center" }}>{message}</PoppinsText>
+        <PoppinsText style={{ textAlign: "justify", paddingHorizontal: 12 }}>
+          {message}
+        </PoppinsText>
         <View style={{ height: HEIGHT.button, width: "100%" }}>
           <GradientButton
             onPress={() => setIsVisible(false)}

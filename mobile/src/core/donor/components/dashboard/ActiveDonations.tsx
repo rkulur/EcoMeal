@@ -1,16 +1,17 @@
-import OutlineButton from "@/src/components/OutlineButton";
+import { PoppinsText } from "@/src/components";
 import { BORDER_RADIUS, COLORS, SPACING } from "@/src/themes";
-import { StyleSheet, View } from "react-native";
+import { DonationHistoryListType } from "@/src/types/donor";
+import { useRouter } from "expo-router";
+import { Pressable, StyleSheet, View } from "react-native";
 import HeadingWithSubtext from "../HeadingWithSubtext";
 import DonationCard from "./DonationCard";
-import { PoppinsText } from "@/src/components";
-import { DonationHistoryListType } from "@/src/types/donor";
 
 type ActiveDonationsProps = {
   donations?: DonationHistoryListType[];
 };
 
 const ActiveDonations = ({ donations }: ActiveDonationsProps) => {
+  const router = useRouter();
   if (!donations || donations.length === 0) {
     return (
       <View style={s.container}>
@@ -42,9 +43,20 @@ const ActiveDonations = ({ donations }: ActiveDonationsProps) => {
         heading="Active Donations"
         subheading="Donations awaiting pickup or processing"
       />
+
       <View style={{ gap: 10 }}>
         {donations?.map((activeDonation, idx) => (
-          <DonationCard donation={activeDonation} key={idx} />
+          <Pressable
+            onPress={() => router.push(`/donor/history/${activeDonation._id}`)}
+            key={idx}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? COLORS.hoverGray : COLORS.white,
+              },
+            ]}
+          >
+            <DonationCard donation={activeDonation} key={idx} />
+          </Pressable>
         ))}
       </View>
       {/* <OutlineButton text="View All Active Donations" onPress={() => null} /> */}

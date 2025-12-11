@@ -3,14 +3,12 @@ import { isAxiosError } from "axios";
 import { FastifyError } from "@/src/types/fastify";
 import { DonationType } from "@/src/types/donor";
 
-export default async function assignDonation(
+export default async function markAsDelivered(
   donationId: string,
-  carehomeId: string,
 ): Promise<ApiResult<DonationType>> {
   try {
-    const res = await api.post<ApiResponse<DonationType | FastifyError>>(
-      `/ngo/assign-donation/${donationId}`,
-      { carehomeId },
+    const res = await api.patch<ApiResponse<DonationType | FastifyError>>(
+      `/ngo/mark-as-delivered/${donationId}`,
     );
     const { success, payload, message } = res.data;
 
